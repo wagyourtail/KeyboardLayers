@@ -22,7 +22,7 @@ public class BindLayer {
     private String parentLayer;
     public final Path file;
 
-    public final Map<KeyMapping, InputConstants.Key> binds = new HashMap<>();
+    public final Map<KeyMapping, Bind> binds = new HashMap<>();
 
     private BindLayer(String name) {
         this.name = name;
@@ -59,10 +59,16 @@ public class BindLayer {
             String line = reader.readLine();
             parentLayer = line;
             while ((line = reader.readLine()) != null) {
-                String[] split = line.split(":", 2);
+                String[] split = line.split(":", 3);
                 KeyMapping key = keyMap.get(split[0]);
+                int mods = 0;
+                if (split.length == 3) {
+                    for (String part : split[2].split("\\+")) {
+                        mods |= Mods.valueOf(part).code;
+                    }
+                }
                 if (key != null) {
-                    binds.put(key, InputConstants.getKey(split[1]));
+                    binds.put(key, new Bind(InputConstants.getKey(split[1]), mods));
                 }
             }
         } catch (IOException e) {
@@ -73,10 +79,25 @@ public class BindLayer {
 
     public void save() throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
-            for (Map.Entry<KeyMapping, InputConstants.Key> mapping : binds.entrySet()) {
+            for (Map.Entry<KeyMapping, Bind> mapping : binds.entrySet()) {
+                int mods = mapping.getValue().mods;
+                InputConstants.Key key = mapping.getValue().key;
                 writer.write(parentLayer);
                 writer.write("\n");
-                writer.write(mapping.getKey().getName() + ":" + mapping.getValue().getName());
+                writer.write(mapping.getKey().getName() + ":" + key.getName());
+                if (mods != 0) {
+                    writer.write(":");
+                    boolean first = true;
+                    for (Mods mod : Mods.values()) {
+                        if ((mods & mod.code) != 0) {
+                            if (!first) {
+                                writer.write("+");
+                            }
+                            writer.write(mod.name());
+                            first = false;
+                        }
+                    }
+                }
                 writer.write("\n");
             }
         }
@@ -85,13 +106,37 @@ public class BindLayer {
     public void copyFrom(KeyMapping[] mappings) {
         binds.clear();
         for (KeyMapping mapping : mappings) {
-            binds.put(mapping, ((KeyMappingAccessor) mapping).getKey());
+            binds.put(mapping, BindLayers.provider.keyMappingToBind(mapping));
         }
     }
 
     public void applyLayer() {
-        for (Map.Entry<KeyMapping, InputConstants.Key> mapping : binds.entrySet()) {
-            mapping.getKey().setKey(mapping.getValue());
+        BindLayers.provider.applyBinds(binds);
+    }
+
+    public static class Bind {
+        public final InputConstants.Key key;
+        public final int mods;
+
+
+        public Bind(InputConstants.Key key, int mods) {
+            this.key = key;
+            this.mods = mods;
+        }
+
+    }
+
+    public enum Mods {
+        NONE(0),
+        SHIFT(1),
+        CONTROL(2),
+        ALT(4),
+        SUPER(8);
+
+        public final int code;
+
+        Mods(int code) {
+            this.code = code;
         }
     }
 }

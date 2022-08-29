@@ -11,10 +11,11 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
-public abstract class BindLayers {
+public class BindLayers {
     protected static final Minecraft mc = Minecraft.getInstance();
-    public static BindLayers INSTANCE;
-    static final Path bindDir = mc.gameDirectory.toPath().resolve("binds");
+    public static final ModLoaderSpecific provider = ServiceLoader.load(ModLoaderSpecific.class).iterator().next();
+    static final Path bindDir = provider.getBindDir();
+    public static BindLayers INSTANCE = new BindLayers();
 
     private final Map<String, BindLayer> layers = new HashMap<>();
 

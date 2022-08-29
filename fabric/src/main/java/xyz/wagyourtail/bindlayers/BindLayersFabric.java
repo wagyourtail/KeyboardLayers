@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 
 import java.io.IOException;
 
-public class BindLayersFabric extends BindLayers implements ClientModInitializer {
+public class BindLayersFabric implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {

@@ -20,7 +20,8 @@
     ]
   },
   "mixins": [
-    "bindlayers-common.mixins.json"
+    "bindlayers-common.mixins.json",
+    "bindlayers.mixins.json"
   ],
   "depends": {
     "fabric": "*",

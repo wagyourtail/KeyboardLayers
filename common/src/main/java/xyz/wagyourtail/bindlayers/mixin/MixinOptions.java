@@ -1,5 +1,7 @@
 package xyz.wagyourtail.bindlayers.mixin;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -26,18 +28,24 @@ public class MixinOptions {
     @Inject(method = "save", at = @At("HEAD"))
     public void bindlayers$onSave(CallbackInfo ci) throws IOException {
         // save layers
-        System.out.println("saving layers");
+//        System.out.println("saving layers");
         Set<String> layers = BindLayers.INSTANCE.availableLayers();
         for (String layer : layers) {
             BindLayer l = BindLayers.INSTANCE.getOrCreate(layer);
             if (l != BindLayers.INSTANCE.defaultLayer) {
-                System.out.println("saving layer: " + layer);
+//                System.out.println("saving layer: " + layer);
                 l.save();
             }
         }
 
         BindLayers.INSTANCE.defaultLayer.applyLayer();
 
+    }
+
+    @Inject(method = "setKey", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Options;save()V"))
+    public void bindlayers$onKeySet(KeyMapping m, InputConstants.Key k, CallbackInfo ci) {
+        BindLayer layer = BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer());
+        layer.binds.put(m, BindLayers.provider.keyMappingToBind(m));
     }
 
     @Inject(method = "save", at = @At("RETURN"))

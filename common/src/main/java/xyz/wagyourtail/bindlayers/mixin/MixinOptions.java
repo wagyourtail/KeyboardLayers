@@ -28,12 +28,12 @@ public class MixinOptions {
     @Inject(method = "save", at = @At("HEAD"))
     public void bindlayers$onSave(CallbackInfo ci) throws IOException {
         // save layers
-//        System.out.println("saving layers");
+        //        System.out.println("saving layers");
         Set<String> layers = BindLayers.INSTANCE.availableLayers();
         for (String layer : layers) {
             BindLayer l = BindLayers.INSTANCE.getOrCreate(layer);
             if (l != BindLayers.INSTANCE.defaultLayer) {
-//                System.out.println("saving layer: " + layer);
+                //                System.out.println("saving layer: " + layer);
                 l.save();
             }
         }

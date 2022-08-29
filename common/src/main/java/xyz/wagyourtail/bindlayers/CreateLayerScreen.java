@@ -26,6 +26,18 @@ public class CreateLayerScreen extends Screen {
     }
 
     @Override
+    public void render(@NotNull PoseStack stack, int mouseX, int mouseY, float delta) {
+        renderBackground(stack);
+        super.render(stack, mouseX, mouseY, delta);
+    }
+
+    @Override
+    public void onClose() {
+        assert minecraft != null;
+        minecraft.setScreen(parent);
+    }
+
+    @Override
     protected void init() {
         super.init();
         nameField = new EditBox(font, width / 2 - 100, height / 2 - 10, 200, 20, Component.literal("Name"));
@@ -80,18 +92,6 @@ public class CreateLayerScreen extends Screen {
                 minecraft.setScreen(parent);
             }
         ));
-    }
-
-    @Override
-    public void onClose() {
-        assert minecraft != null;
-        minecraft.setScreen(parent);
-    }
-
-    @Override
-    public void render(@NotNull PoseStack stack, int mouseX, int mouseY, float delta) {
-        renderBackground(stack);
-        super.render(stack, mouseX, mouseY, delta);
     }
 
 }

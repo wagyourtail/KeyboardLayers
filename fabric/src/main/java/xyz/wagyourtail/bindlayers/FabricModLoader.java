@@ -1,6 +1,5 @@
 package xyz.wagyourtail.bindlayers;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.duck.IKeyBinding;

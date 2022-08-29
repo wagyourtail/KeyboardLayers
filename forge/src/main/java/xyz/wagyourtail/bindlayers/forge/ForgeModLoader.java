@@ -32,7 +32,10 @@ public class ForgeModLoader implements ModLoaderSpecific {
     @Override
     public BindLayer.Bind keyMappingToBind(KeyMapping keyMapping) {
         KeyModifier mod = ((IForgeKeyMapping) keyMapping).getKeyModifier();
-        return new BindLayer.Bind(keyMapping.getKey(), mod == KeyModifier.NONE ? 0 : BindLayer.Mods.valueOf(mod.name()).code);
+        return new BindLayer.Bind(
+            keyMapping.getKey(),
+            mod == KeyModifier.NONE ? 0 : BindLayer.Mods.valueOf(mod.name()).code
+        );
     }
 
 }

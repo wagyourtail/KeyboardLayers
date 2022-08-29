@@ -1,6 +1,5 @@
 package xyz.wagyourtail.bindlayers.mixin;
 
-import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.components.Button;
@@ -18,21 +17,28 @@ import xyz.wagyourtail.bindlayers.BindLayers;
 
 @Mixin(value = KeyBindsList.KeyEntry.class)
 public class MixinKeyEntry {
-    @Shadow @Final private KeyMapping key;
+    @Shadow
+    @Final
+    private KeyMapping key;
 
 
     @Inject(method = "method_19870", at = @At(value = "RETURN"))
     public void bindlayers$onKeyReset(KeyMapping keyMapping, Button button, CallbackInfo ci) {
         BindLayer layer = BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer());
-        if (layer == BindLayers.INSTANCE.defaultLayer) return;
+        if (layer == BindLayers.INSTANCE.defaultLayer) {
+            return;
+        }
         layer.binds.remove(keyMapping);
     }
 
-    @ModifyArg(method = "render", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/network/chat/Component;FFI)I"))
+    @ModifyArg(method = "render",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/network/chat/Component;FFI)I"))
     private Component bindlayers$onRenderName(Component name) {
         if (!BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer()).binds.containsKey(key)) {
             return name.copy().withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
         }
         return name;
     }
+
 }

@@ -11,4 +11,5 @@ public interface ModLoaderSpecific {
     void applyBinds(Map<KeyMapping, BindLayer.Bind> binds);
 
     BindLayer.Bind keyMappingToBind(KeyMapping keyMapping);
+
 }

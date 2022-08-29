@@ -31,8 +31,66 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    public Component getMessage() {
-        return selected.get();
+    public void mouseMoved(double d, double e) {
+        for (AbstractWidget child : children) {
+            child.mouseMoved(d, e);
+        }
+        super.mouseMoved(d, e);
+    }
+
+    @Override
+    public boolean mouseScrolled(double d, double e, double f) {
+        for (AbstractWidget child : children) {
+            if (child.mouseScrolled(d, e, f)) {
+                return true;
+            }
+        }
+        return super.mouseScrolled(d, e, f);
+    }
+
+    @Override
+    public void render(@NotNull PoseStack poseStack, int i, int j, float f) {
+        isHovered = isMouseOver(i, j);
+        if (isFocused()) {
+            for (AbstractWidget child : children) {
+                child.render(poseStack, i, j, f);
+            }
+        } else {
+            renderButton(poseStack, i, j, f);
+        }
+    }
+
+    @Override
+    public boolean mouseClicked(double d, double e, int i) {
+        boolean bl = super.mouseClicked(d, e, i);
+        for (AbstractWidget child : children) {
+            if (child.mouseClicked(d, e, i)) {
+                return true;
+            }
+        }
+        setFocused(bl);
+        return bl;
+    }
+
+    @Override
+    public boolean mouseReleased(double d, double e, int i) {
+        boolean bl = super.mouseReleased(d, e, i);
+        for (AbstractWidget child : children) {
+            if (child.mouseReleased(d, e, i)) {
+                return true;
+            }
+        }
+        return bl;
+    }
+
+    @Override
+    public boolean mouseDragged(double d, double e, int i, double f, double g) {
+        for (AbstractWidget child : children) {
+            if (child.mouseDragged(d, e, i, f, g)) {
+                return true;
+            }
+        }
+        return super.mouseDragged(d, e, i, f, g);
     }
 
     @Override
@@ -60,15 +118,8 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    public boolean mouseClicked(double d, double e, int i) {
-        boolean bl = super.mouseClicked(d, e, i);
-        for (AbstractWidget child : children) {
-            if (child.mouseClicked(d, e, i)) {
-                return true;
-            }
-        }
-        setFocused(bl);
-        return bl;
+    public Component getMessage() {
+        return selected.get();
     }
 
     @Override
@@ -76,57 +127,6 @@ public class DropDownWidget extends AbstractWidget {
         if (bl ^ isFocused()) {
             super.setFocused(bl);
             onFocusedChanged(bl);
-        }
-    }
-
-    @Override
-    public boolean mouseReleased(double d, double e, int i) {
-        boolean bl = super.mouseReleased(d, e, i);
-        for (AbstractWidget child : children) {
-            if (child.mouseReleased(d, e, i)) {
-                return true;
-            }
-        }
-        return bl;
-    }
-
-    @Override
-    public void mouseMoved(double d, double e) {
-        for (AbstractWidget child : children) {
-            child.mouseMoved(d, e);
-        }
-        super.mouseMoved(d, e);
-    }
-
-    @Override
-    public boolean mouseDragged(double d, double e, int i, double f, double g) {
-        for (AbstractWidget child : children) {
-            if (child.mouseDragged(d, e, i, f, g)) {
-                return true;
-            }
-        }
-        return super.mouseDragged(d, e, i, f, g);
-    }
-
-    @Override
-    public boolean mouseScrolled(double d, double e, double f) {
-        for (AbstractWidget child : children) {
-            if (child.mouseScrolled(d, e, f)) {
-                return true;
-            }
-        }
-        return super.mouseScrolled(d, e, f);
-    }
-
-    @Override
-    public void render(@NotNull PoseStack poseStack, int i, int j, float f) {
-        isHovered = isMouseOver(i, j);
-        if (isFocused()) {
-            for (AbstractWidget child : children) {
-                child.render(poseStack, i, j, f);
-            }
-        } else {
-            renderButton(poseStack, i, j, f);
         }
     }
 

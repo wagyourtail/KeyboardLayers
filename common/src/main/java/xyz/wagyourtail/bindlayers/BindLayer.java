@@ -5,7 +5,6 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import org.jetbrains.annotations.NotNull;
-import xyz.wagyourtail.bindlayers.mixin.KeyMappingAccessor;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -19,19 +18,18 @@ import java.util.Map;
 public class BindLayer {
     public static final Minecraft mc = Minecraft.getInstance();
     public final String name;
-    private String parentLayer;
     public final Path file;
-
     public final Map<KeyMapping, Bind> binds = new HashMap<>();
-
-    private BindLayer(String name) {
-        this.name = name;
-        this.file = BindLayers.bindDir.resolve(name + ".txt");
-    }
+    private String parentLayer;
 
     public BindLayer(String name, String parentLayer) {
         this(name);
         this.parentLayer = parentLayer;
+    }
+
+    private BindLayer(String name) {
+        this.name = name;
+        this.file = BindLayers.bindDir.resolve(name + ".txt");
     }
 
     public String getParentLayer() {
@@ -78,7 +76,13 @@ public class BindLayer {
     }
 
     public void save() throws IOException {
-        try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+        try (
+            BufferedWriter writer = Files.newBufferedWriter(
+                file,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING
+            )
+        ) {
             writer.write(parentLayer);
             writer.write("\n");
             for (Map.Entry<KeyMapping, Bind> mapping : binds.entrySet()) {
@@ -114,18 +118,6 @@ public class BindLayer {
         BindLayers.provider.applyBinds(binds);
     }
 
-    public static class Bind {
-        public final InputConstants.Key key;
-        public final int mods;
-
-
-        public Bind(InputConstants.Key key, int mods) {
-            this.key = key;
-            this.mods = mods;
-        }
-
-    }
-
     public enum Mods {
         NONE(0),
         SHIFT(1),
@@ -139,4 +131,17 @@ public class BindLayer {
             this.code = code;
         }
     }
+
+    public static class Bind {
+        public final InputConstants.Key key;
+        public final int mods;
+
+
+        public Bind(InputConstants.Key key, int mods) {
+            this.key = key;
+            this.mods = mods;
+        }
+
+    }
+
 }

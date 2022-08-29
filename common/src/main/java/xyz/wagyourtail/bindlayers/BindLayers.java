@@ -31,6 +31,15 @@ public class BindLayers {
         INSTANCE = this;
     }
 
+    public static <E> E lastIn(Iterable<E> set) {
+        Iterator<E> iterator = set.iterator();
+        E last = null;
+        while (iterator.hasNext()) {
+            last = iterator.next();
+        }
+        return last;
+    }
+
     public void onGameOptionsLoad(Options gameOptions) throws IOException {
         layers.clear();
         layers.put("default", defaultLayer);
@@ -58,10 +67,6 @@ public class BindLayers {
         defaultLayer.copyFrom(gameOptions.keyMappings);
 
         setActiveLayer(active);
-    }
-
-    public BindLayer getOrCreate(String name) {
-        return layers.computeIfAbsent(name, (s) -> new BindLayer(s, defaultLayer.name));
     }
 
     public Set<String> availableLayers() {
@@ -98,16 +103,12 @@ public class BindLayers {
         KeyMapping.resetMapping();
     }
 
+    public BindLayer getOrCreate(String name) {
+        return layers.computeIfAbsent(name, (s) -> new BindLayer(s, defaultLayer.name));
+    }
+
     public List<BindLayer> getLayerStack() {
         return layerStack;
     }
 
-    public static <E> E lastIn(Iterable<E> set) {
-        Iterator<E> iterator = set.iterator();
-        E last = null;
-        while (iterator.hasNext()) {
-            last = iterator.next();
-        }
-        return last;
-    }
 }

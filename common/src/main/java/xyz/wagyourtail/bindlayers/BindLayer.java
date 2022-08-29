@@ -79,11 +79,11 @@ public class BindLayer {
 
     public void save() throws IOException {
         try (BufferedWriter writer = Files.newBufferedWriter(file, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            writer.write(parentLayer);
+            writer.write("\n");
             for (Map.Entry<KeyMapping, Bind> mapping : binds.entrySet()) {
                 int mods = mapping.getValue().mods;
                 InputConstants.Key key = mapping.getValue().key;
-                writer.write(parentLayer);
-                writer.write("\n");
                 writer.write(mapping.getKey().getName() + ":" + key.getName());
                 if (mods != 0) {
                     writer.write(":");

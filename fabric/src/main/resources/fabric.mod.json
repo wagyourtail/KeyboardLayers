@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "bindlayers",
+  "version": "${version}",
+  "name": "Keyboard Layers",
+  "description": "Add layers to your keybinds to manage them easier",
+  "authors": [
+    "Wagyourtail"
+  ],
+  "contact": {
+    "homepage": "https://github.com/wagyourtail/KeyboardLayers",
+    "sources": "https://github.com/wagyourtail/KeyboardLayers"
+  },
+  "license": "Insert License Here",
+  "icon": "assets/bindlayers/icon.png",
+  "environment": "*",
+  "entrypoints": {
+    "client": [
+      "xyz.wagyourtail.bindlayers.BindLayersFabric"
+    ]
+  },
+  "mixins": [
+    "bindlayers-common.mixins.json"
+  ],
+  "depends": {
+    "fabric": "*",
+    "minecraft": "1.19.X"
+  }
+}

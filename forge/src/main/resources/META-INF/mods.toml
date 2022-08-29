@@ -1,0 +1,28 @@
+modLoader = "javafml"
+loaderVersion = "[43,)"
+issueTrackerURL = "https://github.com/wagyourtail/KeyboardLayers"
+license = "MPL-2.0"
+
+[[mods]]
+modId = "bindlayers"
+version = "${version}"
+displayName = "Keyboard Layers"
+authors = "Wagyourtail"
+description = '''
+Add layers to your keybinds to manage them easier
+'''
+#logoFile = ""
+
+[[dependencies.bindlayers]]
+modId = "forge"
+mandatory = true
+versionRange = "[43,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.bindlayers]]
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.19, 1.20)"
+ordering = "NONE"
+side = "BOTH"

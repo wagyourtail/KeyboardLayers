@@ -1,3 +1,7 @@
 {
-    "item.examplemod.example_item": "Example Item"
+    "bindlayers.next_layer": "Next Layer",
+    "bindlayers.prev_layer": "Previous Layer",
+    "bindlayers.category": "BindLayers",
+    "bindlayers.quick_select": "Quick Select",
+    "bindlayers.toast.layer_change.title": "Layer Changed"
 }

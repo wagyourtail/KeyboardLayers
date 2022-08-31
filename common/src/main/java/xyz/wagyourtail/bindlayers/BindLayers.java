@@ -1,9 +1,13 @@
 package xyz.wagyourtail.bindlayers;
 
 import com.google.common.collect.ImmutableList;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
+import net.minecraft.client.gui.components.toasts.SystemToast;
+import net.minecraft.network.chat.Component;
+import xyz.wagyourtail.bindlayers.screen.QuickSelectScreen;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -17,12 +21,30 @@ public class BindLayers {
     static final Path bindDir = provider.getBindDir();
     public static BindLayers INSTANCE = new BindLayers();
 
-    private final Map<String, BindLayer> layers = new HashMap<>();
+    private final Map<String, BindLayer> layers = new LinkedHashMap<>();
 
     public final BindLayer defaultLayer = new BindLayer("default", "default");
 
+    public final KeyMapping nextLayer = new KeyMapping(
+        "bindlayers.next_layer",
+        InputConstants.KEY_LBRACKET,
+        "bindlayers.category"
+    );
+    public final KeyMapping prevLayer = new KeyMapping(
+        "bindlayers.prev_layer",
+        InputConstants.KEY_RBRACKET,
+        "bindlayers.category"
+    );
+    public final KeyMapping quickSelect = new KeyMapping(
+        "bindlayers.quick_select",
+        InputConstants.KEY_BACKSLASH,
+        "bindlayers.category"
+    );
+
     private BindLayer activeLayer = defaultLayer;
     private List<BindLayer> layerStack = ImmutableList.of(activeLayer);
+
+    private LayerToast toast = null;
 
     public BindLayers() {
         if (INSTANCE != null) {
@@ -69,13 +91,34 @@ public class BindLayers {
         setActiveLayer(active);
     }
 
-    public Set<String> availableLayers() {
-        return layers.keySet();
+    public void onTick() {
+        if (nextLayer.consumeClick()) {
+            List<String> layers = new ArrayList<>(availableLayers());
+            int index = layers.indexOf(activeLayer.name);
+            if (index == layers.size() - 1) {
+                index = 0;
+            } else {
+                index++;
+            }
+            setActiveLayer(layers.get(index));
+        }
+        if (prevLayer.consumeClick()) {
+            List<String> layers = new ArrayList<>(availableLayers());
+            int index = layers.indexOf(activeLayer.name);
+            if (index == 0) {
+                index = layers.size() - 1;
+            } else {
+                index--;
+            }
+            setActiveLayer(layers.get(index));
+        }
+        if (quickSelect.consumeClick()) {
+            mc.setScreen(new QuickSelectScreen());
+        }
     }
 
-
-    public void onTick() {
-        //todo: next layer button
+    public Set<String> availableLayers() {
+        return layers.keySet();
     }
 
     public String getActiveLayer() {
@@ -101,6 +144,18 @@ public class BindLayers {
         layerStack = ImmutableList.copyOf(layerList);
 
         KeyMapping.resetMapping();
+
+        try {
+            if (toast == null || toast.isDone) {
+                toast = new LayerToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                    Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name)
+                );
+                mc.getToasts().addToast(toast);
+            } else {
+                toast.reset(Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name));
+            }
+        } catch (Exception e) {
+        }
     }
 
     public BindLayer getOrCreate(String name) {

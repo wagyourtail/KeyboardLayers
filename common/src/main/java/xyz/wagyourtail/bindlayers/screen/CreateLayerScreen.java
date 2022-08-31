@@ -1,4 +1,4 @@
-package xyz.wagyourtail.bindlayers;
+package xyz.wagyourtail.bindlayers.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
@@ -6,6 +6,8 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
+import xyz.wagyourtail.bindlayers.BindLayer;
+import xyz.wagyourtail.bindlayers.BindLayers;
 import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 
 import java.util.Map;
@@ -16,7 +18,6 @@ public class CreateLayerScreen extends Screen {
     private final Screen parent;
 
     private EditBox nameField;
-    private DropDownWidget parentField;
 
     private BindLayer parentLayer = BindLayers.INSTANCE.defaultLayer;
 
@@ -53,7 +54,7 @@ public class CreateLayerScreen extends Screen {
             Function.identity()
         ));
 
-        parentField = addRenderableWidget(new DropDownWidget(
+        DropDownWidget parentField = addRenderableWidget(new DropDownWidget(
             width / 2 - 100,
             height / 2 + 15,
             200,

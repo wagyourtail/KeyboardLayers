@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.wagyourtail.bindlayers.BindLayers;
-import xyz.wagyourtail.bindlayers.CreateLayerScreen;
+import xyz.wagyourtail.bindlayers.screen.CreateLayerScreen;
 import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 
 import java.util.Map;
@@ -35,7 +35,8 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
             Function.identity()
         ));
 
-        addRenderableWidget(new DropDownWidget(10,
+        addRenderableWidget(new DropDownWidget(
+            10,
             5,
             this.width / 4,
             12,

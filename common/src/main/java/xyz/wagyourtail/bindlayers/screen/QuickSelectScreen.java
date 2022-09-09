@@ -27,39 +27,6 @@ public class QuickSelectScreen extends Screen {
     }
 
     @Override
-    public void render(@NotNull PoseStack poseStack, int i, int j, float f) {
-        int boxHeight = 12 + matches.size() * 12;
-        fill(poseStack, width / 2 - 100, height / 4, width / 2 + 100, height / 4 + boxHeight, 0x4F000000);
-        // draw search string
-        drawCenteredString(poseStack, font, searchString, width / 2, height / 4 + 1, 0xFFFFFF);
-        fill(poseStack, width / 2 - 95, height / 4 + 11, width / 2 + 100, height / 4 + 12, 0xFFFFFFFF);
-
-        // draw hilightbox
-        fill(
-            poseStack,
-            width / 2 - 100,
-            height / 4 + 12 + 11 * hilightedResult,
-            width / 2 + 100,
-            height / 4 + 23 + 11 * hilightedResult,
-            0x4F7F7F7F
-        );
-
-        int resultIndex = 0;
-        for (String result : matches) {
-            drawString(
-                poseStack,
-                font,
-                result,
-                width / 2 - 90,
-                height / 4 + 13 + 11 * resultIndex++,
-                resultIndex == 5 ? 0xFF7F7F7F : 0xFFFFFF
-            );
-        }
-
-        super.render(poseStack, i, j, f);
-    }
-
-    @Override
     public boolean keyPressed(int i, int j, int k) {
         switch (i) {
             case GLFW.GLFW_KEY_BACKSPACE:
@@ -114,6 +81,39 @@ public class QuickSelectScreen extends Screen {
         if (matches.size() > 0) {
             hilightedResult = 0;
         }
+    }
+
+    @Override
+    public void render(@NotNull PoseStack poseStack, int i, int j, float f) {
+        int boxHeight = 12 + matches.size() * 12;
+        fill(poseStack, width / 2 - 100, height / 4, width / 2 + 100, height / 4 + boxHeight, 0x4F000000);
+        // draw search string
+        drawCenteredString(poseStack, font, searchString, width / 2, height / 4 + 1, 0xFFFFFF);
+        fill(poseStack, width / 2 - 95, height / 4 + 11, width / 2 + 100, height / 4 + 12, 0xFFFFFFFF);
+
+        // draw hilightbox
+        fill(
+            poseStack,
+            width / 2 - 100,
+            height / 4 + 12 + 11 * hilightedResult,
+            width / 2 + 100,
+            height / 4 + 23 + 11 * hilightedResult,
+            0x4F7F7F7F
+        );
+
+        int resultIndex = 0;
+        for (String result : matches) {
+            drawString(
+                poseStack,
+                font,
+                result,
+                width / 2 - 90,
+                height / 4 + 13 + 11 * resultIndex++,
+                resultIndex == 5 ? 0xFF7F7F7F : 0xFFFFFF
+            );
+        }
+
+        super.render(poseStack, i, j, f);
     }
 
 }

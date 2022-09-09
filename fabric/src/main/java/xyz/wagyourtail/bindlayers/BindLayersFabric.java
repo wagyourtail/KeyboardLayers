@@ -12,9 +12,7 @@ public class BindLayersFabric implements ClientModInitializer {
         KeyBindingHelper.registerKeyBinding(BindLayers.INSTANCE.prevLayer);
         KeyBindingHelper.registerKeyBinding(BindLayers.INSTANCE.quickSelect);
 
-        ClientTickEvents.END_CLIENT_TICK.register((mc) -> {
-            BindLayers.INSTANCE.onTick();
-        });
+        ClientTickEvents.END_CLIENT_TICK.register(mc -> BindLayers.INSTANCE.onTick());
     }
 
 }

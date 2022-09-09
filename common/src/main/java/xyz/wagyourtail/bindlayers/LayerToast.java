@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.client.gui.components.toasts.ToastComponent;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 public class LayerToast extends SystemToast {
@@ -15,7 +16,7 @@ public class LayerToast extends SystemToast {
 
 
     @Override
-    public Visibility render(PoseStack poseStack, ToastComponent toastComponent, long l) {
+    public Visibility render(@NotNull PoseStack poseStack, @NotNull ToastComponent toastComponent, long l) {
         Visibility sup = super.render(poseStack, toastComponent, l);
         if (sup == Visibility.HIDE) {
             isDone = true;

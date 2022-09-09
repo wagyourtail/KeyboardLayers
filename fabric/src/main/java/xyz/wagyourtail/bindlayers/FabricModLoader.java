@@ -1,5 +1,6 @@
 package xyz.wagyourtail.bindlayers;
 
+import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifier;
 import de.siphalor.amecs.api.KeyModifiers;
 import de.siphalor.amecs.impl.duck.IKeyBinding;
@@ -23,6 +24,7 @@ public class FabricModLoader implements ModLoaderSpecific {
         if (FabricLoader.getInstance().isModLoaded("amecsapi")) {
             for (Map.Entry<KeyMapping, BindLayer.Bind> mapping : binds.entrySet()) {
                 KeyModifiers modifiers = ((IKeyBinding) mapping.getKey()).amecs$getKeyModifiers();
+
                 modifiers.unset();
                 Set<KeyModifier> modifierSet = new HashSet<>();
                 int mods = mapping.getValue().mods;
@@ -31,9 +33,11 @@ public class FabricModLoader implements ModLoaderSpecific {
                         modifierSet.add(KeyModifier.valueOf(mod.name()));
                     }
                 }
+
                 for (KeyModifier mod : modifierSet) {
                     modifiers.set(mod, true);
                 }
+
                 mapping.getKey().setKey(mapping.getValue().key);
             }
         } else {
@@ -56,6 +60,23 @@ public class FabricModLoader implements ModLoaderSpecific {
             return new BindLayer.Bind(((KeyMappingAccessor) keyMapping).getKey(), mods);
         } else {
             return new BindLayer.Bind(((KeyMappingAccessor) keyMapping).getKey(), 0);
+        }
+    }
+
+    @Override
+    public BindLayer.Bind keyMappingDefaultToBind(KeyMapping keyMapping) {
+        if (FabricLoader.getInstance().isModLoaded("amecsapi")) {
+            KeyModifiers modifiers =
+                keyMapping instanceof AmecsKeyBinding ? AmecAccessor.getDefaultKeyMods((AmecsKeyBinding) keyMapping) : KeyModifiers.NO_MODIFIERS;
+            int mods = 0;
+            for (KeyModifier mod : KeyModifier.values()) {
+                if (modifiers.get(mod)) {
+                    mods |= BindLayer.Mods.valueOf(mod.name()).code;
+                }
+            }
+            return new BindLayer.Bind(keyMapping.getDefaultKey(), mods);
+        } else {
+            return new BindLayer.Bind(keyMapping.getDefaultKey(), 0);
         }
     }
 

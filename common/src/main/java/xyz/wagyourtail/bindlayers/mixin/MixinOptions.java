@@ -17,6 +17,7 @@ import java.util.Set;
 public class MixinOptions {
 
     @Inject(method = "load", at = @At("RETURN"))
+    @SuppressWarnings("ConstantConditions")
     public void onLoad(CallbackInfo ci) {
         try {
             BindLayers.INSTANCE.onGameOptionsLoad((Options) (Object) this);
@@ -51,7 +52,7 @@ public class MixinOptions {
     @Inject(method = "save", at = @At("RETURN"))
     public void bindlayers$onSaveReturn(CallbackInfo ci) {
         // reload layers
-        BindLayers.INSTANCE.setActiveLayer(BindLayers.INSTANCE.getActiveLayer());
+        BindLayers.INSTANCE.setActiveLayer(BindLayers.INSTANCE.getActiveLayer(), true);
     }
 
 }

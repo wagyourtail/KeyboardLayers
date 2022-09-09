@@ -22,6 +22,7 @@ public class DropDownWidget extends AbstractWidget {
 
     Set<AbstractWidget> children = new HashSet<>();
 
+    @SuppressWarnings("ConstantConditions")
     public DropDownWidget(int i, int j, int k, int l, Supplier<Component> selected, Supplier<Set<Component>> options, Consumer<Component> select, @Nullable Runnable addOption) {
         super(i, j, k, l, null);
         this.selected = selected;
@@ -100,9 +101,7 @@ public class DropDownWidget extends AbstractWidget {
             int index = 0;
             if (addOption != null) {
                 index++;
-                children.add(new Button(x, y, width, 12, Component.literal("Add Option"), (btn) -> {
-                    addOption.run();
-                }));
+                children.add(new Button(x, y, width, 12, Component.literal("Add Option"), (btn) -> addOption.run()));
             }
             for (Component option : options.get()) {
                 children.add(new Button(x, y + index++ * 12, width, 12, option, (button) -> {
@@ -131,7 +130,7 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    public void updateNarration(NarrationElementOutput narrationElementOutput) {
+    public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
         // TODO: idk
     }
 

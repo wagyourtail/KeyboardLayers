@@ -2,7 +2,6 @@ package xyz.wagyourtail.bindlayers;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,7 +15,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class BindLayer {
-    public static final Minecraft mc = Minecraft.getInstance();
     public final String name;
     public final Path file;
     public final Map<KeyMapping, Bind> binds = new HashMap<>();
@@ -107,11 +105,36 @@ public class BindLayer {
         }
     }
 
+    public void removeFile() {
+        try {
+            Files.deleteIfExists(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void copyFrom(KeyMapping[] mappings) {
         binds.clear();
         for (KeyMapping mapping : mappings) {
             binds.put(mapping, BindLayers.provider.keyMappingToBind(mapping));
         }
+    }
+
+    public void copyFromDefault(KeyMapping[] mappings) {
+        binds.clear();
+        for (KeyMapping mapping : mappings) {
+            binds.put(mapping, BindLayers.provider.keyMappingDefaultToBind(mapping));
+        }
+        parentLayer = BindLayers.INSTANCE.defaultLayer.name;
+    }
+
+    public void copyFrom(BindLayer layer) {
+        binds.clear();
+        binds.putAll(layer.binds);
+        parentLayer = layer.parentLayer;
+    }
+
+    public void addAll(BindLayer layer) {
+        binds.putAll(layer.binds);
     }
 
     public void applyLayer() {

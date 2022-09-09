@@ -17,6 +17,9 @@
     "entrypoints": {
         "client": [
             "xyz.wagyourtail.bindlayers.BindLayersFabric"
+        ],
+        "modmenu": [
+            "xyz.wagyourtail.bindlayers.ModMenuEntrypoint"
         ]
     },
     "mixins": [

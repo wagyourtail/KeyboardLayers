@@ -2,11 +2,16 @@ package xyz.wagyourtail.bindlayers;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
+import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.components.toasts.SystemToast;
 import net.minecraft.network.chat.Component;
+import org.jetbrains.annotations.ApiStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import xyz.wagyourtail.bindlayers.screen.QuickSelectScreen;
 
 import java.io.IOException;
@@ -15,13 +20,15 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
 
+@SuppressWarnings("unused")
 public class BindLayers {
     protected static final Minecraft mc = Minecraft.getInstance();
+    protected static final Logger LOGGER = LoggerFactory.getLogger(BindLayers.class);
     public static final ModLoaderSpecific provider = ServiceLoader.load(ModLoaderSpecific.class).iterator().next();
     static final Path bindDir = provider.getBindDir();
     public static BindLayers INSTANCE = new BindLayers();
 
-    private final Map<String, BindLayer> layers = new LinkedHashMap<>();
+    private final Map<String, BindLayer> layers = new Object2ObjectRBTreeMap<>();
 
     public final BindLayer defaultLayer = new BindLayer("default", "default");
 
@@ -76,12 +83,14 @@ public class BindLayers {
         }
 
         try (Stream<Path> files = Files.list(bindDir)) {
+            LOGGER.info("Loading BindLayers...");
             files.forEach(path -> {
                 if (Files.isRegularFile(path)) {
                     String name = path.getFileName().toString();
                     BindLayer layer = new BindLayer(name.substring(0, name.lastIndexOf('.')), null);
                     layer.load(gameOptions);
                     layers.put(layer.name, layer);
+                    LOGGER.info("Discovered layer: {}", layer.name);
                 }
             });
         }
@@ -126,11 +135,16 @@ public class BindLayers {
     }
 
     public void setActiveLayer(String name) {
+        setActiveLayer(name, false);
+    }
+
+    @ApiStatus.Internal
+    public void setActiveLayer(String name, boolean quiet) {
         LinkedHashSet<BindLayer> layers = new LinkedHashSet<>();
         BindLayer layer = activeLayer = getOrCreate(name);
         while (layer != defaultLayer) {
             if (!layers.add(layer)) {
-                System.err.println("Layer loop detected!, fixing by stopping now at default layer");
+                LOGGER.warn("Layer loop detected!, fixing by stopping now at default layer");
                 break;
             }
             layer = getOrCreate(layer.getParentLayer());
@@ -146,15 +160,17 @@ public class BindLayers {
         KeyMapping.resetMapping();
 
         try {
-            if (toast == null || toast.isDone) {
-                toast = new LayerToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                    Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name)
-                );
-                mc.getToasts().addToast(toast);
-            } else {
-                toast.reset(Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name));
+            if (!quiet) {
+                if (toast == null || toast.isDone) {
+                    toast = new LayerToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
+                        Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name)
+                    );
+                    mc.getToasts().addToast(toast);
+                } else {
+                    toast.reset(Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name));
+                }
             }
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -164,6 +180,23 @@ public class BindLayers {
 
     public List<BindLayer> getLayerStack() {
         return layerStack;
+    }
+
+    public BindLayer removeLayer(String name) {
+        return layers.remove(name);
+    }
+
+    public Set<BindLayer> getChildLayers(String name) {
+        Set<BindLayer> layers = new LinkedHashSet<>();
+        for (BindLayer layer : this.layers.values()) {
+            if (layer.getParentLayer().equals(name)) {
+                if (!layer.name.equals("default")) {
+                    layers.add(layer);
+                    layers.addAll(getChildLayers(layer.name));
+                }
+            }
+        }
+        return layers;
     }
 
 }

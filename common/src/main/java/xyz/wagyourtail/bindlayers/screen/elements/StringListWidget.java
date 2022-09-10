@@ -14,6 +14,10 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
         super(minecraft, width, height, top, bottom, ENTRY_HEIGHT);
     }
 
+    protected int getScrollbarPosition() {
+        return this.x1 - 6;
+    }
+
     public int addEntry(String entry) {
         return addEntry(new StringEntry(entry));
     }
@@ -25,6 +29,16 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
         }
     }
 
+    @Override
+    public int getRowWidth() {
+        return width;
+    }
+
+    @Override
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
+        super.render(poseStack, mouseX, mouseY, partialTick);
+    }
+
     public class StringEntry extends ObjectSelectionList.Entry<StringEntry> {
         public final String string;
 
@@ -34,7 +48,7 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
 
         @Override
         public void render(PoseStack poseStack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
-            drawString(poseStack, Minecraft.getInstance().font, string, left, top, 0xFFFFFF);
+            drawString(poseStack, Minecraft.getInstance().font, string, left + 10, top, 0xFFFFFF);
         }
 
         @Override

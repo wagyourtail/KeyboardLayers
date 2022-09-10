@@ -1,6 +1,7 @@
 package xyz.wagyourtail.bindlayers.screen;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -8,16 +9,18 @@ import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.bindlayers.BindLayer;
 import xyz.wagyourtail.bindlayers.BindLayers;
 
+import java.io.IOException;
+
 public class RenameLayerScreen extends Screen {
     public final Screen parent;
     public final String oldName;
-    public String newName;
+
+    EditBox nameBox;
 
     public RenameLayerScreen(Screen parent, String layerName) {
-        super(Component.literal("Rename Layer"));
+        super(Component.translatable("bindlayers.gui.rename_layer"));
         this.parent = parent;
         this.oldName = layerName;
-        this.newName = layerName;
     }
 
 
@@ -26,11 +29,30 @@ public class RenameLayerScreen extends Screen {
     protected void init() {
         super.init();
 
-        EditBox nameBox = addRenderableWidget(
+        nameBox = addRenderableWidget(
             new EditBox(font, width / 2 - 100, height / 2 - 10, 200, 20, Component.literal("New Name"))
         );
-        nameBox.setValue(newName);
-        nameBox.setResponder(s -> newName = s);
+        nameBox.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]+"));
+        nameBox.setMaxLength(32);
+        nameBox.setBordered(true);
+        nameBox.setTextColor(-1);
+        nameBox.setValue(oldName);
+        nameBox.setResponder(s -> {
+            if (BindLayers.INSTANCE.availableLayers().contains(s) && !s.equals(oldName)) {
+                nameBox.setTextColor(0xFF0000);
+            } else {
+                nameBox.setTextColor(0xFFFFFF);
+            }
+        });
+
+        addRenderableWidget(new Button(
+            this.width / 2 - 50,
+            this.height - 30,
+            100,
+            20,
+            Component.translatable("gui.done"),
+            (b) -> onClose()
+        ));
 
     }
 
@@ -38,11 +60,19 @@ public class RenameLayerScreen extends Screen {
     public void onClose() {
         assert minecraft != null;
         minecraft.setScreen(parent);
-        if (newName.equals(oldName)) return;
-        BindLayer newLayer = BindLayers.INSTANCE.getOrCreate(newName);
+        if (nameBox.getValue().equals(oldName)) return;
+        if (BindLayers.INSTANCE.availableLayers().contains(nameBox.getValue())) {
+            return;
+        }
+        BindLayer newLayer = BindLayers.INSTANCE.getOrCreate(nameBox.getValue());
         newLayer.copyFrom(BindLayers.INSTANCE.getOrCreate(oldName));
         if (BindLayers.INSTANCE.getActiveLayer().equals(oldName)) {
-            BindLayers.INSTANCE.setActiveLayer(newName);
+            BindLayers.INSTANCE.setActiveLayer(nameBox.getValue());
+        }
+        try {
+            newLayer.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
         BindLayer oldLayer = BindLayers.INSTANCE.removeLayer(oldName);
         oldLayer.removeFile();

@@ -13,6 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public class BindLayer {
     public final String name;
@@ -163,6 +164,23 @@ public class BindLayer {
         public Bind(InputConstants.Key key, int mods) {
             this.key = key;
             this.mods = mods;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof Bind)) {
+                return false;
+            }
+            Bind bind = (Bind) o;
+            return mods == bind.mods && Objects.equals(key, bind.key);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(key, mods);
         }
 
     }

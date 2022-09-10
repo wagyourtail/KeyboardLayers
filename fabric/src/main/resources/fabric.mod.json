@@ -11,7 +11,7 @@
         "homepage": "https://github.com/wagyourtail/KeyboardLayers",
         "sources": "https://github.com/wagyourtail/KeyboardLayers"
     },
-    "license": "Insert License Here",
+    "license": "MPL-2.0",
     "icon": "assets/bindlayers/icon.png",
     "environment": "*",
     "entrypoints": {

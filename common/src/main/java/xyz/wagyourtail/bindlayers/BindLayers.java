@@ -2,7 +2,6 @@ package xyz.wagyourtail.bindlayers;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.platform.InputConstants;
-import it.unimi.dsi.fastutil.objects.Object2ObjectAVLTreeMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;

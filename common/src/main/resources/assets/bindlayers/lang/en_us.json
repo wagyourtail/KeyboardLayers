@@ -3,5 +3,18 @@
     "bindlayers.prev_layer": "Previous Layer",
     "bindlayers.category": "BindLayers",
     "bindlayers.quick_select": "Quick Select",
-    "bindlayers.toast.layer_change.title": "Layer Changed"
+    "bindlayers.toast.layer_change.title": "Layer Changed",
+    "bindlayers.gui.rename": "Rename",
+    "bindlayers.gui.layer_generator": "Layer Generator",
+    "bindlayers.gui.none": "None",
+    "bindlayers.layer.confirm_delete": "Are you sure you want to delete this layer?",
+    "bindlayers.layer.confirm_delete2": "This will also delete all child layers:",
+    "bindlayers.gui.change_parent": "Change Parent",
+    "bindlayers.gui.rename_layer": "Rename Layer",
+    "bindlayers.gui.add_option": "Add Option",
+    "bindlayers.gui.parent": "Parent",
+    "bindlayers.gui.merge": "Merge",
+    "bindlayers.gui.back": "Back",
+    "bindlayers.gui.delete": "Delete",
+    "bindlayers.gui.edit": "Edit"
 }

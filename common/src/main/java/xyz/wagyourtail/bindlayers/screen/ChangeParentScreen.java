@@ -9,6 +9,7 @@ import xyz.wagyourtail.bindlayers.BindLayer;
 import xyz.wagyourtail.bindlayers.BindLayers;
 import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -21,7 +22,7 @@ public class ChangeParentScreen extends Screen {
     public final List<Component> parents = new ArrayList<>();
 
     public ChangeParentScreen(Screen parent, String layerName) {
-        super(Component.literal("Change Parent"));
+        super(Component.translatable("bindlayers.gui.change_parent"));
         this.parent = parent;
         this.layerName = layerName;
         this.layer = BindLayers.INSTANCE.getOrCreate(layerName);
@@ -37,11 +38,11 @@ public class ChangeParentScreen extends Screen {
         }
 
         addRenderableWidget(new DropDownWidget(
-            10,
-            5,
-            this.width / 4,
+            this.width / 2 - 50,
+            this.height / 2 - 10,
+            100,
             12,
-            () -> Component.literal(BindLayers.INSTANCE.getActiveLayer()),
+            () -> Component.literal(layer.getParentLayer()),
             () -> layers.keySet().stream().filter(c -> !c.getString().equals(layerName)).collect(Collectors.toSet()),
             (s) -> {
                 String selectedLayer = layers.get(s);
@@ -52,15 +53,12 @@ public class ChangeParentScreen extends Screen {
         ));
 
         addRenderableWidget(new Button(
-            10,
+            this.width / 2 - 50,
+            this.height - 30,
+            100,
             20,
-            this.width / 4,
-            20,
-            Component.literal("Done"),
-            (b) -> {
-                assert minecraft != null;
-                minecraft.setScreen(parent);
-            }
+            Component.translatable("gui.done"),
+            (b) -> onClose()
         ));
 
         checkLoop();
@@ -85,6 +83,11 @@ public class ChangeParentScreen extends Screen {
     public void onClose() {
         assert minecraft != null;
         minecraft.setScreen(parent);
+        try {
+            layer.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override

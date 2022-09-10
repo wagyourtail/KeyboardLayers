@@ -54,9 +54,9 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
         addRenderableWidget(new Button(
             90,
             5,
-            75,
+            100,
             12,
-            Component.literal("Conflict Resolver"),
+            Component.translatable("bindlayers.gui.layer_generator"),
             (button) -> {
                 assert minecraft != null;
                 minecraft.setScreen(new GuidedConflictResolver(this));

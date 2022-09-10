@@ -101,7 +101,7 @@ public class DropDownWidget extends AbstractWidget {
             int index = 0;
             if (addOption != null) {
                 index++;
-                children.add(new Button(x, y, width, 12, Component.literal("Add Option"), (btn) -> addOption.run()));
+                children.add(new Button(x, y, width, 12, Component.translatable("bindlayers.gui.add_option"), (btn) -> addOption.run()));
             }
             for (Component option : options.get()) {
                 children.add(new Button(x, y + index++ * 12, width, 12, option, (button) -> {

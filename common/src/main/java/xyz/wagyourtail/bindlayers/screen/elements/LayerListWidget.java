@@ -28,11 +28,33 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
         this.getLayer = getLayer;
     }
 
+    protected int getScrollbarPosition() {
+        return this.x1 - 6;
+    }
+
+    @Override
+    public int getRowWidth() {
+        return width;
+    }
+
     public void init(Set<String> availableLayers) {
+        init(availableLayers, true);
+    }
+
+    public void init(Set<String> availableLayers, boolean skipDefault) {
         clearEntries();
         for (String layer : availableLayers) {
-            if (Objects.equals(layer, BindLayers.INSTANCE.defaultLayer.name)) return;
+            if (Objects.equals(layer, BindLayers.INSTANCE.defaultLayer.name) && skipDefault) continue;
             addEntry(new LayerEntry(layer));
+        }
+    }
+
+    public void setSelected(String layer) {
+        for (LayerEntry entry : children()) {
+            if (Objects.equals(entry.layer.name, layer)) {
+                setSelected(entry);
+                return;
+            }
         }
     }
 
@@ -64,9 +86,9 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
         @Override
         public void render(@NotNull PoseStack poseStack, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTick) {
             // draw the layer name top left
-            drawString(poseStack, font, layerName, left, top, 0xFFFFFF);
+            drawString(poseStack, font, layerName, left + 10, top, 0xFFFFFF);
             // parent name below
-            drawString(poseStack, font, Component.literal(layer.getParentLayer()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), left, top + 10, 0xFFFFFF);
+            drawString(poseStack, font, Component.literal(layer.getParentLayer()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), left + 10, top + 10, 0xFFFFFF);
         }
 
     }

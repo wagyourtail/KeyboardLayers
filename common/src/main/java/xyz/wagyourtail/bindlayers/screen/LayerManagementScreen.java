@@ -36,13 +36,12 @@ public class LayerManagementScreen extends Screen {
         layerList.init(BindLayers.INSTANCE.availableLayers());
 
         // back
-        back = addRenderableWidget(new Button(width / 2 - 210, height - 30, 80, 20, Component.literal("Back"), button -> {
-            assert minecraft != null;
-            minecraft.setScreen(parent);
+        back = addRenderableWidget(new Button(width / 2 - 210, height - 30, 80, 20, Component.translatable("bindlayers.gui.back"), button -> {
+            onClose();
         }));
 
         // delete
-        addRenderableWidget(new Button(width / 2 - 125, height - 30, 80, 20, Component.literal("Delete"), button -> {
+        addRenderableWidget(new Button(width / 2 - 125, height - 30, 80, 20, Component.translatable("bindlayers.gui.delete"), button -> {
             assert layerList.getSelected() != null;
             Set<BindLayer> childLayers = BindLayers.INSTANCE.getChildLayers(layerList.getSelected().layerName);
             if (childLayers.isEmpty()) {
@@ -63,26 +62,26 @@ public class LayerManagementScreen extends Screen {
                         layerList.removeEntry(layerList.getSelected());
                     }
                     minecraft.setScreen(null);
-                }, Component.literal("Are you sure you want to delete this layer?"), Component.literal("This will also delete all child layers:\n" + String.join(", ", childLayers.stream().map(e -> e.name).toArray(String[]::new)))));
+                }, Component.translatable("bindlayers.layer.confirm_delete"), Component.translatable("bindlayers.layer.confirm_delete2").append("\n" + String.join(", ", childLayers.stream().map(e -> e.name).toArray(String[]::new)))));
                 BindLayers.INSTANCE.removeLayer(layerList.getSelected().layerName);
             }
         }));
         // edit
-        addRenderableWidget(new Button(width / 2 - 40, height - 30, 80, 20, Component.literal("Edit"), button -> {
+        addRenderableWidget(new Button(width / 2 - 40, height - 30, 80, 20, Component.translatable("bindlayers.gui.edit"), button -> {
             assert layerList.getSelected() != null;
             BindLayers.INSTANCE.setActiveLayer(layerList.getSelected().layerName);
             assert minecraft != null;
             minecraft.setScreen(new KeyBindsScreen(this, minecraft.options));
         }));
         // rename
-        addRenderableWidget(new Button(width / 2 + 45, height - 30, 80, 20, Component.literal("Rename"), button -> {
+        addRenderableWidget(new Button(width / 2 + 45, height - 30, 80, 20, Component.translatable("bindlayers.gui.rename"), button -> {
             assert minecraft != null;
             assert layerList.getSelected() != null;
             minecraft.setScreen(new RenameLayerScreen(this, layerList.getSelected().layerName));
         }));
 
         // change parent
-        addRenderableWidget(new Button(width / 2 + 130, height - 30, 80, 20, Component.literal("Change Parent"), button -> {
+        addRenderableWidget(new Button(width / 2 + 130, height - 30, 80, 20, Component.translatable("bindlayers.gui.change_parent"), button -> {
             assert minecraft != null;
             assert layerList.getSelected() != null;
             minecraft.setScreen(new ChangeParentScreen(this, layerList.getSelected().layerName));
@@ -95,6 +94,7 @@ public class LayerManagementScreen extends Screen {
     public void onClose() {
         assert minecraft != null;
         minecraft.setScreen(parent);
+        minecraft.options.save();
     }
 
     public void updateButtons() {

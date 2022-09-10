@@ -22,7 +22,7 @@ public class CreateLayerScreen extends Screen {
     private BindLayer parentLayer = BindLayers.INSTANCE.defaultLayer;
 
     public CreateLayerScreen(Screen parent) {
-        super(Component.literal("Create Layer"));
+        super(Component.translatable("bindlayers.gui.rename_layer"));
         this.parent = parent;
     }
 
@@ -65,13 +65,12 @@ public class CreateLayerScreen extends Screen {
             height - 30,
             200,
             20,
-            Component.literal("Create"),
+            Component.translatable("gui.create"),
             (button) -> {
                 if (!nameField.getValue().isEmpty()) {
                     BindLayer l = BindLayers.INSTANCE.getOrCreate(nameField.getValue());
                     l.setParentLayer(parentLayer.name);
-                    assert minecraft != null;
-                    minecraft.setScreen(parent);
+                    onClose();
                 }
             }
         ));
@@ -81,10 +80,9 @@ public class CreateLayerScreen extends Screen {
             height - 30,
             200,
             20,
-            Component.literal("Cancel"),
+            Component.translatable("gui.cancel"),
             (button) -> {
-                assert minecraft != null;
-                minecraft.setScreen(parent);
+                onClose();
             }
         ));
     }

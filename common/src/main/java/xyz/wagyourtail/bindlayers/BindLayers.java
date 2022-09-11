@@ -18,8 +18,8 @@ import java.util.*;
 import java.util.stream.Stream;
 
 import static net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds.PERIODIC_NOTIFICATION;
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 @SuppressWarnings("unused")
 public class BindLayers {

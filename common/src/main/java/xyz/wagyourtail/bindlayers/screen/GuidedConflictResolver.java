@@ -22,10 +22,9 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static net.minecraft.client.resources.language.I18n.get;
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
-
 public class GuidedConflictResolver extends Screen {
     private final Map<String, BindLayer> newLayers = new Object2ObjectRBTreeMap<>();
     private final Screen parent;

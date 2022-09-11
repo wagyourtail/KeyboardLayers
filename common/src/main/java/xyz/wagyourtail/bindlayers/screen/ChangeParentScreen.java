@@ -13,8 +13,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 public class ChangeParentScreen extends Screen {
     public final Screen parent;

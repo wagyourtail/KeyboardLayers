@@ -22,7 +22,7 @@ public class MixinKeyEntry {
     private KeyMapping key;
 
 
-    @Inject(method = { "method_19870", "m_193933_" }, at = @At(value = "RETURN"))
+    @Inject(method = {"method_19870", "m_193933_"}, at = @At(value = "RETURN"))
     public void bindlayers$onKeyReset(KeyMapping keyMapping, Button button, CallbackInfo ci) {
         BindLayer layer = BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer());
         if (layer == BindLayers.INSTANCE.defaultLayer) {

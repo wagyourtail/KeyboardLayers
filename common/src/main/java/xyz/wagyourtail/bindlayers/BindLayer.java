@@ -113,6 +113,7 @@ public class BindLayer {
             throw new RuntimeException(e);
         }
     }
+
     public void copyFrom(KeyMapping[] mappings) {
         binds.clear();
         for (KeyMapping mapping : mappings) {
@@ -168,6 +169,11 @@ public class BindLayer {
         }
 
         @Override
+        public int hashCode() {
+            return Objects.hash(key, mods);
+        }
+
+        @Override
         public boolean equals(Object o) {
             if (this == o) {
                 return true;
@@ -177,11 +183,6 @@ public class BindLayer {
             }
             Bind bind = (Bind) o;
             return mods == bind.mods && Objects.equals(key, bind.key);
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(key, mods);
         }
 
     }

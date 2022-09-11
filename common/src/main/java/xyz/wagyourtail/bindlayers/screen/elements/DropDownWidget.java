@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
+import static net.minecraft.network.chat.Component.translatable;
+
 public class DropDownWidget extends AbstractWidget {
     final Supplier<Component> selected;
     final Supplier<Set<Component>> options;
@@ -101,7 +103,14 @@ public class DropDownWidget extends AbstractWidget {
             int index = 0;
             if (addOption != null) {
                 index++;
-                children.add(new Button(x, y, width, 12, Component.translatable("bindlayers.gui.add_option"), (btn) -> addOption.run()));
+                children.add(new Button(
+                    x,
+                    y,
+                    width,
+                    12,
+                    translatable("bindlayers.gui.add_option"),
+                    (btn) -> addOption.run()
+                ));
             }
             for (Component option : options.get()) {
                 children.add(new Button(x, y + index++ * 12, width, 12, option, (button) -> {

@@ -13,81 +13,22 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.network.chat.Component.translatable;
+
 public class ChangeParentScreen extends Screen {
     public final Screen parent;
     public final String layerName;
     public final BindLayer layer;
+    public final List<Component> parents = new ArrayList<>();
     String loopLayer;
     boolean warnLoop = false;
-    public final List<Component> parents = new ArrayList<>();
 
     public ChangeParentScreen(Screen parent, String layerName) {
-        super(Component.translatable("bindlayers.gui.change_parent"));
+        super(translatable("bindlayers.gui.change_parent"));
         this.parent = parent;
         this.layerName = layerName;
         this.layer = BindLayers.INSTANCE.getOrCreate(layerName);
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        Map<Component, String> layers = new LinkedHashMap<>();
-
-        for (String layer : BindLayers.INSTANCE.availableLayers()) {
-            layers.put(Component.literal(layer), layer);
-        }
-
-        addRenderableWidget(new DropDownWidget(
-            this.width / 2 - 50,
-            this.height / 2 - 10,
-            100,
-            12,
-            () -> Component.literal(layer.getParentLayer()),
-            () -> layers.keySet().stream().filter(c -> !c.getString().equals(layerName)).collect(Collectors.toSet()),
-            (s) -> {
-                String selectedLayer = layers.get(s);
-                layer.setParentLayer(selectedLayer);
-                checkLoop();
-            },
-            null
-        ));
-
-        addRenderableWidget(new Button(
-            this.width / 2 - 50,
-            this.height - 30,
-            100,
-            20,
-            Component.translatable("gui.done"),
-            (b) -> onClose()
-        ));
-
-        checkLoop();
-    }
-
-    public void checkLoop() {
-        parents.clear();
-        Set<String> parents = new HashSet<>();
-        String parent = layer.name;
-        warnLoop = false;
-        while (!parent.equals(BindLayers.INSTANCE.defaultLayer.name)) {
-            if (parents.contains(layerName)) {
-                warnLoop = true;
-                break;
-            }
-            parents.add(parent);
-            parent = BindLayers.INSTANCE.getOrCreate(parent).getParentLayer();
-        }
-    }
-
-    @Override
-    public void onClose() {
-        assert minecraft != null;
-        minecraft.setScreen(parent);
-        try {
-            layer.save();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     @Override
@@ -123,6 +64,68 @@ public class ChangeParentScreen extends Screen {
         }
 
         super.render(poseStack, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public void onClose() {
+        assert minecraft != null;
+        minecraft.setScreen(parent);
+        try {
+            layer.save();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        Map<Component, String> layers = new LinkedHashMap<>();
+
+        for (String layer : BindLayers.INSTANCE.availableLayers()) {
+            layers.put(literal(layer), layer);
+        }
+
+        addRenderableWidget(new DropDownWidget(
+            this.width / 2 - 50,
+            this.height / 2 - 10,
+            100,
+            12,
+            () -> literal(layer.getParentLayer()),
+            () -> layers.keySet().stream().filter(c -> !c.getString().equals(layerName)).collect(Collectors.toSet()),
+            (s) -> {
+                String selectedLayer = layers.get(s);
+                layer.setParentLayer(selectedLayer);
+                checkLoop();
+            },
+            null
+        ));
+
+        addRenderableWidget(new Button(
+            this.width / 2 - 50,
+            this.height - 30,
+            100,
+            20,
+            translatable("gui.done"),
+            (b) -> onClose()
+        ));
+
+        checkLoop();
+    }
+
+    public void checkLoop() {
+        parents.clear();
+        Set<String> parents = new HashSet<>();
+        String parent = layer.name;
+        warnLoop = false;
+        while (!parent.equals(BindLayers.INSTANCE.defaultLayer.name)) {
+            if (parents.contains(layerName)) {
+                warnLoop = true;
+                break;
+            }
+            parents.add(parent);
+            parent = BindLayers.INSTANCE.getOrCreate(parent).getParentLayer();
+        }
     }
 
 }

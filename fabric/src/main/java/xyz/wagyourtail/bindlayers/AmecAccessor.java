@@ -24,7 +24,9 @@ public class AmecAccessor {
                 }
             }
             defaultMods = dm;
-            if (defaultMods == null) throw new NoSuchFieldException("defaultMods");
+            if (defaultMods == null) {
+                throw new NoSuchFieldException("defaultMods");
+            }
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -45,4 +47,5 @@ public class AmecAccessor {
             ((AmecsKeyBinding) keyMapping).resetKeyBinding();
         }
     }
+
 }

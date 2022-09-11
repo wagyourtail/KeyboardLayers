@@ -22,6 +22,11 @@ import xyz.wagyourtail.bindlayers.screen.elements.StringListWidget;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static net.minecraft.client.resources.language.I18n.get;
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
+
 public class GuidedConflictResolver extends Screen {
     private final Map<String, BindLayer> newLayers = new Object2ObjectRBTreeMap<>();
     private final Screen parent;
@@ -37,190 +42,8 @@ public class GuidedConflictResolver extends Screen {
 
 
     public GuidedConflictResolver(Screen parent) {
-        super(Component.translatable("bindlayers.gui.layer_generator"));
+        super(translatable("bindlayers.gui.layer_generator"));
         this.parent = parent;
-    }
-
-    @Override
-    protected void init() {
-        super.init();
-        if (newLayers.isEmpty()) {
-            firstInit();
-        }
-
-        layerList = addRenderableWidget(new LayerListWidget(this, minecraft, width / 2 - 10, height, 32, height - 32, newLayers::get));
-        layerList.setLeftPos(5);
-        layerList.init(newLayers.keySet(), false);
-        bindList = addRenderableWidget(new StringListWidget(minecraft, width / 2 - 10, height / 2, 32, height / 2));
-        bindList.setLeftPos(width / 2 + 5);
-
-        // cancel
-        cancel = addRenderableWidget(new Button(
-            width / 2 - 100,
-            height - 30,
-            100,
-            20,
-            Component.translatable("gui.cancel"),
-            (button) -> {
-                onClose();
-            }
-        ));
-
-        // save
-        save = addRenderableWidget(new Button(
-            width / 2,
-            height - 30,
-            100,
-            20,
-            Component.translatable("gui.done"),
-            (button) -> {
-                BindLayers.INSTANCE.defaultLayer.copyFrom(newLayers.get(BindLayers.INSTANCE.defaultLayer.name));
-                for (BindLayer layer : newLayers.values()) {
-                    BindLayer l = BindLayers.INSTANCE.getOrCreate(layer.name);
-                    l.copyFrom(layer);
-                }
-                for (String layer : BindLayers.INSTANCE.availableLayers()) {
-                    if (!newLayers.containsKey(layer)) {
-                        BindLayer l = BindLayers.INSTANCE.removeLayer(layer);
-                        l.removeFile();
-                    }
-                }
-                assert minecraft != null;
-                minecraft.options.save();
-                onClose();
-            }
-        ));
-
-        // right middle
-        // rename box
-        assert minecraft != null;
-        EditBox renameBox = addRenderableWidget(new EditBox(
-            minecraft.font,
-            width / 2 + 10,
-            height / 2 + 10,
-            95,
-            12,
-            Component.translatable("bindlayers.gui.rename")
-        ));
-
-        renameBox.setMaxLength(32);
-        renameBox.setBordered(true);
-        renameBox.setTextColor(-1);
-        renameBox.setValue("");
-        renameBox.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]+"));
-        renameBox.setResponder(s -> {
-            if (newLayers.containsKey(s) && !s.equals(currentSelected)) {
-                renameBox.setTextColor(0xFF0000);
-            } else {
-                renameBox.setTextColor(0xFFFFFF);
-            }
-        });
-
-        // rename button
-        addRenderableWidget(new Button(
-            width / 2 + 137,
-            height / 2 + 10,
-            50,
-            12,
-            Component.translatable("bindlayers.gui.rename"),
-            (button) -> {
-                if (currentSelected != null && !renameBox.getValue().isEmpty()) {
-                    BindLayer layer = newLayers.get(currentSelected);
-                    if (newLayers.containsKey(renameBox.getValue())) return;
-                    newLayers.remove(currentSelected);
-                    BindLayer renamed = new BindLayer(renameBox.getValue(), layer.getParentLayer());
-                    renamed.copyFrom(layer);
-                    newLayers.put(renameBox.getValue(), renamed);
-                    layerList.init(newLayers.keySet(), false);
-                    layerList.setSelected(renamed.name);
-                }
-            }
-        ));
-
-        Map<Component, String> allLayers = new LinkedHashMap<>();
-        final String[] localCurrentParent = { null };
-
-        // change parent dropdown
-        addRenderableWidget(new DropDownWidget(
-            width / 2 + 125,
-            height / 2 + 25,
-            75,
-            12,
-            () -> Component.literal(currentSelected == null ? I18n.get("bindlayers.gui.none") : currentSelected),
-            () -> {
-                if (!Objects.equals(localCurrentParent[0], currentSelected)) {
-                    allLayers.clear();
-                    localCurrentParent[0] = currentSelected;
-                    if (!Objects.equals(localCurrentParent[0], BindLayers.INSTANCE.defaultLayer.name)) {
-                        newLayers.keySet().stream().filter(s -> s.equals(localCurrentParent[0])).forEach(s -> allLayers.put(Component.literal(s), s));
-                    }
-                }
-                Set<Component> ret = new LinkedHashSet<>();
-                ret.add(Component.translatable("bindlayers.gui.none"));
-                ret.addAll(allLayers.keySet());
-                return ret;
-            },
-            (c) -> {
-                if (currentSelected != null) {
-                    BindLayer layer = newLayers.get(currentSelected);
-                    String l = allLayers.get(c);
-                    if (l != null) {
-                        unmaskParent(layer);
-                        layer.setParentLayer(l);
-                        maskParent(layer);
-                        remaskChildren(layer);
-                    }
-                }
-            },
-            null
-        ));
-
-        Map<Component, String> nonConflictLayers = new LinkedHashMap<>();
-        final String[] localCurrentMerge = {currentSelected};
-
-        // `merge` dropdown
-        addRenderableWidget(new DropDownWidget(
-            width / 2 + 125,
-            height / 2 + 40,
-            75,
-            12,
-            () -> Component.translatable("bindlayers.gui.none"),
-            () -> {
-                if (!Objects.equals(localCurrentMerge[0], currentSelected)) {
-                    nonConflictLayers.clear();
-                    localCurrentMerge[0] = currentSelected;
-                    newLayers.keySet().stream().filter(s -> !s.equals(BindLayers.INSTANCE.defaultLayer.name) && !conflicts.computeIfAbsent(currentSelected, c -> new HashSet<>()).contains(s)).forEach(s -> nonConflictLayers.put(Component.literal(s), s));
-                }
-                Set<Component> ret = new LinkedHashSet<>();
-                ret.add(Component.translatable("bindlayers.gui.none"));
-                ret.addAll(nonConflictLayers.keySet());
-                return ret;
-            },
-            (c) -> {
-                if (currentSelected != null) {
-                    BindLayer layer = newLayers.get(currentSelected);
-                    BindLayer merge = newLayers.get(nonConflictLayers.get(c));
-                    if (merge == null) return;
-                    unmaskParent(layer);
-                    unmaskParent(merge);
-                    layer.addAll(merge);
-                    maskParent(layer);
-                    newLayers.remove(nonConflictLayers.get(c));
-                    for (BindLayer l : newLayers.values()) {
-                        if (l.getParentLayer().equals(nonConflictLayers.get(c))) {
-                            l.setParentLayer(currentSelected);
-                        }
-                    }
-                    remaskChildren(layer);
-                    layerList.init(newLayers.keySet(), false);
-                    layerList.setSelected(layer.name);
-                }
-            },
-            null
-        ));
-
-        updateSelected();
-
     }
 
     private Set<BindLayer> getParents(BindLayer current) {
@@ -243,7 +66,9 @@ public class GuidedConflictResolver extends Screen {
         binds.remove(BindLayer.Bind.UNKNOWN);
 
         BindLayer parent = newLayers.get(layer.getParentLayer());
-        if (parent == layer) return;
+        if (parent == layer) {
+            return;
+        }
         for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
             if (binds.contains(e.getValue())) {
                 layer.binds.put(e.getKey(), BindLayer.Bind.UNKNOWN);
@@ -271,10 +96,13 @@ public class GuidedConflictResolver extends Screen {
     private void unmaskParent(BindLayer layer) {
         Set<BindLayer.Bind> binds = new HashSet<>(layer.binds.values());
         binds.remove(BindLayer.Bind.UNKNOWN);
-        Set<KeyMapping> unknowns = layer.binds.entrySet().stream().filter(e -> e.getValue().equals(BindLayer.Bind.UNKNOWN)).map(Map.Entry::getKey).collect(Collectors.toSet());
+        Set<KeyMapping> unknowns = layer.binds.entrySet().stream().filter(e -> e.getValue()
+            .equals(BindLayer.Bind.UNKNOWN)).map(Map.Entry::getKey).collect(Collectors.toSet());
 
         BindLayer parent = newLayers.get(layer.getParentLayer());
-        if (parent == layer) return;
+        if (parent == layer) {
+            return;
+        }
         for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
             if (binds.contains(e.getValue()) && unknowns.contains(e.getKey())) {
                 layer.binds.remove(e.getKey());
@@ -294,7 +122,8 @@ public class GuidedConflictResolver extends Screen {
 
         Map<String, Set<BindLayer.Bind>> usedKeysByCategory = new HashMap<>();
         for (KeyMapping mapping : mappings) {
-            usedKeysByCategory.computeIfAbsent(mapping.getCategory(), (c) -> new HashSet<>()).add(BindLayers.provider.keyMappingDefaultToBind(mapping));
+            usedKeysByCategory.computeIfAbsent(mapping.getCategory(), (c) -> new HashSet<>())
+                .add(BindLayers.provider.keyMappingDefaultToBind(mapping));
         }
 
         // compute conflicts
@@ -302,7 +131,9 @@ public class GuidedConflictResolver extends Screen {
         for (Map.Entry<String, Set<BindLayer.Bind>> entry : usedKeysByCategory.entrySet()) {
             Set<String> conflictSet = new HashSet<>();
             for (Map.Entry<String, Set<BindLayer.Bind>> entry2 : usedKeysByCategory.entrySet()) {
-                if (entry.getKey().equals(entry2.getKey())) continue;
+                if (entry.getKey().equals(entry2.getKey())) {
+                    continue;
+                }
                 for (BindLayer.Bind key : entry.getValue()) {
                     if (entry2.getValue().contains(key) && key.key != InputConstants.UNKNOWN) {
                         conflictSet.add(entry2.getKey());
@@ -324,7 +155,10 @@ public class GuidedConflictResolver extends Screen {
         );
 
         // compute new layers
-        BindLayer defaultLayer = new BindLayer(BindLayers.INSTANCE.defaultLayer.name, BindLayers.INSTANCE.defaultLayer.name);
+        BindLayer defaultLayer = new BindLayer(
+            BindLayers.INSTANCE.defaultLayer.name,
+            BindLayers.INSTANCE.defaultLayer.name
+        );
         newLayers.put(defaultLayer.name, defaultLayer);
 
         // combine binds from vanilla categories
@@ -334,10 +168,13 @@ public class GuidedConflictResolver extends Screen {
 
         // add new layer for each remaining category
         for (Map.Entry<String, Set<KeyMapping>> entry : mappingsByCategory.entrySet()) {
-            if (defaultLayerCategories.contains(entry.getKey())) continue;
+            if (defaultLayerCategories.contains(entry.getKey())) {
+                continue;
+            }
             String translatedName = I18n.get(entry.getKey());
             // remove spaces and make pascal case
-            String name = Arrays.stream(translatedName.split(" ")).map(e -> e.substring(0, 1).toUpperCase() + e.substring(1).toLowerCase()).collect(Collectors.joining());
+            String name = Arrays.stream(translatedName.split(" ")).map(e -> e.substring(0, 1).toUpperCase() +
+                e.substring(1).toLowerCase()).collect(Collectors.joining());
             BindLayer layer = new BindLayer(name, defaultLayer.name);
             maskParent(layer);
             remaskChildren(layer);
@@ -346,7 +183,9 @@ public class GuidedConflictResolver extends Screen {
         }
 
         for (KeyMapping mapping : mappings) {
-            if (defaultLayer.binds.containsKey(mapping)) continue;
+            if (defaultLayer.binds.containsKey(mapping)) {
+                continue;
+            }
             defaultLayer.binds.put(mapping, BindLayer.Bind.UNKNOWN);
         }
     }
@@ -354,13 +193,6 @@ public class GuidedConflictResolver extends Screen {
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean result = super.mouseClicked(mouseX, mouseY, button);
-        updateSelected();
-        return result;
-    }
-
-    @Override
-    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
-        boolean result = super.keyPressed(keyCode, scanCode, modifiers);
         updateSelected();
         return result;
     }
@@ -387,8 +219,13 @@ public class GuidedConflictResolver extends Screen {
                     }
                 }
             } else {
-                bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.keySet().stream().map(bind ->
-                    Component.translatable(bind.getName()).append("  -  ").append(InputConstants.getKey(bind.saveString()).getDisplayName())).collect(Collectors.toSet())));
+                bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.keySet()
+                    .stream()
+                    .map(bind ->
+                        Component.translatable(bind.getName())
+                            .append("  -  ")
+                            .append(InputConstants.getKey(bind.saveString()).getDisplayName()))
+                    .collect(Collectors.toSet())));
                 for (GuiEventListener listener : children()) {
                     if (listener instanceof Button) {
                         ((Button) listener).active = true;
@@ -416,6 +253,218 @@ public class GuidedConflictResolver extends Screen {
 
 
         super.render(poseStack, mouseX, mouseY, partialTick);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        boolean result = super.keyPressed(keyCode, scanCode, modifiers);
+        updateSelected();
+        return result;
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+        if (newLayers.isEmpty()) {
+            firstInit();
+        }
+
+        layerList = addRenderableWidget(new LayerListWidget(
+            this,
+            minecraft,
+            width / 2 - 10,
+            height,
+            32,
+            height - 32,
+            newLayers::get
+        ));
+        layerList.setLeftPos(5);
+        layerList.init(newLayers.keySet(), false);
+        bindList = addRenderableWidget(new StringListWidget(minecraft, width / 2 - 10, height / 2, 32, height / 2));
+        bindList.setLeftPos(width / 2 + 5);
+
+        // cancel
+        cancel = addRenderableWidget(new Button(
+            width / 2 - 100,
+            height - 30,
+            100,
+            20,
+            translatable("gui.cancel"),
+            (button) -> {
+                onClose();
+            }
+        ));
+
+        // save
+        save = addRenderableWidget(new Button(
+            width / 2,
+            height - 30,
+            100,
+            20,
+            translatable("gui.done"),
+            (button) -> {
+                INSTANCE.defaultLayer.copyFrom(newLayers.get(INSTANCE.defaultLayer.name));
+                for (BindLayer layer : newLayers.values()) {
+                    BindLayer l = INSTANCE.getOrCreate(layer.name);
+                    l.copyFrom(layer);
+                }
+                for (String layer : INSTANCE.availableLayers()) {
+                    if (!newLayers.containsKey(layer)) {
+                        BindLayer l = INSTANCE.removeLayer(layer);
+                        l.removeFile();
+                    }
+                }
+                assert minecraft != null;
+                minecraft.options.save();
+                onClose();
+            }
+        ));
+
+        // right middle
+        // rename box
+        assert minecraft != null;
+        EditBox renameBox = addRenderableWidget(new EditBox(
+            minecraft.font,
+            width / 2 + 10,
+            height / 2 + 10,
+            95,
+            12,
+            translatable("bindlayers.gui.rename")
+        ));
+
+        renameBox.setMaxLength(32);
+        renameBox.setBordered(true);
+        renameBox.setTextColor(-1);
+        renameBox.setValue("");
+        renameBox.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]+"));
+        renameBox.setResponder(s -> {
+            if (newLayers.containsKey(s) && !s.equals(currentSelected)) {
+                renameBox.setTextColor(0xFF0000);
+            } else {
+                renameBox.setTextColor(0xFFFFFF);
+            }
+        });
+
+        // rename button
+        addRenderableWidget(new Button(
+            width / 2 + 137,
+            height / 2 + 10,
+            50,
+            12,
+            translatable("bindlayers.gui.rename"),
+            (button) -> {
+                if (currentSelected != null && !renameBox.getValue().isEmpty()) {
+                    BindLayer layer = newLayers.get(currentSelected);
+                    if (newLayers.containsKey(renameBox.getValue())) {
+                        return;
+                    }
+                    newLayers.remove(currentSelected);
+                    BindLayer renamed = new BindLayer(renameBox.getValue(), layer.getParentLayer());
+                    renamed.copyFrom(layer);
+                    newLayers.put(renameBox.getValue(), renamed);
+                    layerList.init(newLayers.keySet(), false);
+                    layerList.setSelected(renamed.name);
+                }
+            }
+        ));
+
+        Map<Component, String> allLayers = new LinkedHashMap<>();
+        final String[] localCurrentParent = {null};
+
+        // change parent dropdown
+        addRenderableWidget(new DropDownWidget(
+            width / 2 + 125,
+            height / 2 + 25,
+            75,
+            12,
+            () -> literal(currentSelected == null ? get("bindlayers.gui.none") : currentSelected),
+            () -> {
+                if (!Objects.equals(localCurrentParent[0], currentSelected)) {
+                    allLayers.clear();
+                    localCurrentParent[0] = currentSelected;
+                    if (!Objects.equals(localCurrentParent[0], BindLayers.INSTANCE.defaultLayer.name)) {
+                        newLayers.keySet()
+                            .stream()
+                            .filter(s -> s.equals(localCurrentParent[0]))
+                            .forEach(s -> allLayers.put(
+                                literal(s), s));
+                    }
+                }
+                Set<Component> ret = new LinkedHashSet<>();
+                ret.add(translatable("bindlayers.gui.none"));
+                ret.addAll(allLayers.keySet());
+                return ret;
+            },
+            (c) -> {
+                if (currentSelected != null) {
+                    BindLayer layer = newLayers.get(currentSelected);
+                    String l = allLayers.get(c);
+                    if (l != null) {
+                        unmaskParent(layer);
+                        layer.setParentLayer(l);
+                        maskParent(layer);
+                        remaskChildren(layer);
+                    }
+                }
+            },
+            null
+        ));
+
+        Map<Component, String> nonConflictLayers = new LinkedHashMap<>();
+        final String[] localCurrentMerge = {currentSelected};
+
+        // `merge` dropdown
+        addRenderableWidget(new DropDownWidget(
+            width / 2 + 125,
+            height / 2 + 40,
+            75,
+            12,
+            () -> translatable("bindlayers.gui.none"),
+            () -> {
+                if (!Objects.equals(localCurrentMerge[0], currentSelected)) {
+                    nonConflictLayers.clear();
+                    localCurrentMerge[0] = currentSelected;
+                    newLayers.keySet()
+                        .stream()
+                        .filter(s -> !s.equals(BindLayers.INSTANCE.defaultLayer.name) && !conflicts.computeIfAbsent(
+                            currentSelected,
+                            c -> new HashSet<>()
+                        ).contains(s))
+                        .forEach(s -> nonConflictLayers.put(
+                            literal(s), s));
+                }
+                Set<Component> ret = new LinkedHashSet<>();
+                ret.add(translatable("bindlayers.gui.none"));
+                ret.addAll(nonConflictLayers.keySet());
+                return ret;
+            },
+            (c) -> {
+                if (currentSelected != null) {
+                    BindLayer layer = newLayers.get(currentSelected);
+                    BindLayer merge = newLayers.get(nonConflictLayers.get(c));
+                    if (merge == null) {
+                        return;
+                    }
+                    unmaskParent(layer);
+                    unmaskParent(merge);
+                    layer.addAll(merge);
+                    maskParent(layer);
+                    newLayers.remove(nonConflictLayers.get(c));
+                    for (BindLayer l : newLayers.values()) {
+                        if (l.getParentLayer().equals(nonConflictLayers.get(c))) {
+                            l.setParentLayer(currentSelected);
+                        }
+                    }
+                    remaskChildren(layer);
+                    layerList.init(newLayers.keySet(), false);
+                    layerList.setSelected(layer.name);
+                }
+            },
+            null
+        ));
+
+        updateSelected();
+
     }
 
 }

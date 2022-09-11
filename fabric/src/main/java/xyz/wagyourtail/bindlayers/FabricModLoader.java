@@ -67,7 +67,9 @@ public class FabricModLoader implements ModLoaderSpecific {
     public BindLayer.Bind keyMappingDefaultToBind(KeyMapping keyMapping) {
         if (FabricLoader.getInstance().isModLoaded("amecsapi")) {
             KeyModifiers modifiers =
-                keyMapping instanceof AmecsKeyBinding ? AmecAccessor.getDefaultKeyMods((AmecsKeyBinding) keyMapping) : KeyModifiers.NO_MODIFIERS;
+                keyMapping instanceof AmecsKeyBinding ?
+                    AmecAccessor.getDefaultKeyMods((AmecsKeyBinding) keyMapping) :
+                    KeyModifiers.NO_MODIFIERS;
             int mods = 0;
             for (KeyModifier mod : KeyModifier.values()) {
                 if (modifiers.get(mod)) {

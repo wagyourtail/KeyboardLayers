@@ -28,13 +28,18 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
         this.getLayer = getLayer;
     }
 
+    @Override
+    public int getRowWidth() {
+        return width;
+    }
+
     protected int getScrollbarPosition() {
         return this.x1 - 6;
     }
 
     @Override
-    public int getRowWidth() {
-        return width;
+    public boolean removeEntry(@NotNull LayerEntry entry) {
+        return super.removeEntry(entry);
     }
 
     public void init(Set<String> availableLayers) {
@@ -44,7 +49,9 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
     public void init(Set<String> availableLayers, boolean skipDefault) {
         clearEntries();
         for (String layer : availableLayers) {
-            if (Objects.equals(layer, BindLayers.INSTANCE.defaultLayer.name) && skipDefault) continue;
+            if (Objects.equals(layer, BindLayers.INSTANCE.defaultLayer.name) && skipDefault) {
+                continue;
+            }
             addEntry(new LayerEntry(layer));
         }
     }
@@ -56,11 +63,6 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
                 return;
             }
         }
-    }
-
-    @Override
-    public boolean removeEntry(@NotNull LayerEntry entry) {
-        return super.removeEntry(entry);
     }
 
     public class LayerEntry extends ObjectSelectionList.Entry<LayerEntry> {
@@ -88,8 +90,10 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
             // draw the layer name top left
             drawString(poseStack, font, layerName, left + 10, top, 0xFFFFFF);
             // parent name below
-            drawString(poseStack, font, Component.literal(layer.getParentLayer()).withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), left + 10, top + 10, 0xFFFFFF);
+            drawString(poseStack, font, Component.literal(layer.getParentLayer())
+                .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), left + 10, top + 10, 0xFFFFFF);
         }
 
     }
+
 }

@@ -21,6 +21,10 @@ import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
+
 @Mixin({KeyBindsScreen.class, NewKeyBindsScreen.class})
 public class MixinKeyBindsScreen extends OptionsSubScreen {
 
@@ -38,7 +42,7 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
         Map<Component, String> layers = new LinkedHashMap<>();
 
         for (String layer : BindLayers.INSTANCE.availableLayers()) {
-            layers.put(Component.literal(layer), layer);
+            layers.put(literal(layer), layer);
         }
 
         bindlayers$layerSelector = addRenderableWidget(new DropDownWidget(
@@ -46,7 +50,7 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
             5,
             75,
             12,
-            () -> Component.literal(BindLayers.INSTANCE.getActiveLayer()),
+            () -> literal(INSTANCE.getActiveLayer()),
             layers::keySet,
             (s) -> {
                 String selectedLayer = layers.get(s);
@@ -63,7 +67,7 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
             5,
             100,
             12,
-            Component.translatable("bindlayers.gui.layer_generator"),
+            translatable("bindlayers.gui.layer_generator"),
             (button) -> {
                 assert minecraft != null;
                 minecraft.setScreen(new GuidedConflictResolver(this));

@@ -6,8 +6,6 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
-import net.minecraft.client.gui.components.toasts.SystemToast;
-import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.ApiStatus;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +16,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.stream.Stream;
+
+import static net.minecraft.client.gui.components.toasts.SystemToast.SystemToastIds.PERIODIC_NOTIFICATION;
+import static net.minecraft.network.chat.Component.literal;
+import static net.minecraft.network.chat.Component.translatable;
 
 @SuppressWarnings("unused")
 public class BindLayers {
@@ -161,12 +163,13 @@ public class BindLayers {
         try {
             if (!quiet) {
                 if (toast == null || toast.isDone) {
-                    toast = new LayerToast(SystemToast.SystemToastIds.PERIODIC_NOTIFICATION,
-                        Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name)
+                    toast = new LayerToast(
+                        PERIODIC_NOTIFICATION,
+                        translatable("bindlayers.toast.layer_change.title"), literal(name)
                     );
                     mc.getToasts().addToast(toast);
                 } else {
-                    toast.reset(Component.translatable("bindlayers.toast.layer_change.title"), Component.literal(name));
+                    toast.reset(translatable("bindlayers.toast.layer_change.title"), literal(name));
                 }
             }
         } catch (Exception ignored) {

@@ -7,6 +7,8 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Set;
 
+import static net.minecraft.network.chat.Component.literal;
+
 public class StringListWidget extends ObjectSelectionList<StringListWidget.StringEntry> {
     private static final int ENTRY_HEIGHT = 12;
 
@@ -14,23 +16,19 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
         super(minecraft, width, height, top, bottom, ENTRY_HEIGHT);
     }
 
-    protected int getScrollbarPosition() {
-        return this.x1 - 6;
-    }
-
-    public int addEntry(Component entry) {
-        return addEntry(new StringEntry(entry));
-    }
-
     public int addEntry(String entry) {
-        return addEntry(new StringEntry(Component.literal(entry)));
+        return addEntry(new StringEntry(literal(entry)));
     }
 
     public void init(Set<String> strings) {
         clearEntries();
         for (String s : strings) {
-            addEntry(Component.literal(s));
+            addEntry(literal(s));
         }
+    }
+
+    public int addEntry(Component entry) {
+        return addEntry(new StringEntry(entry));
     }
 
     public void initWithComponent(Set<Component> strings) {
@@ -48,6 +46,10 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
     @Override
     public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         super.render(poseStack, mouseX, mouseY, partialTick);
+    }
+
+    protected int getScrollbarPosition() {
+        return this.x1 - 6;
     }
 
     public class StringEntry extends ObjectSelectionList.Entry<StringEntry> {
@@ -68,4 +70,5 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
         }
 
     }
+
 }

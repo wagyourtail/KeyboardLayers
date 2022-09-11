@@ -2,6 +2,7 @@ package xyz.wagyourtail.bindlayers.screen;
 
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
@@ -30,7 +31,7 @@ import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
 public class GuidedConflictResolver extends Screen {
     private final Map<String, BindLayer> newLayers = new Object2ObjectRBTreeMap<>();
     private final Screen parent;
-    private Map<String, Set<String>> conflicts;
+    private Map<BindLayer, Set<BindLayer>> conflicts;
     @Nullable
     private String currentSelected;
 
@@ -46,22 +47,28 @@ public class GuidedConflictResolver extends Screen {
         this.parent = parent;
     }
 
-    private Set<BindLayer> getParents(BindLayer current) {
-        Set<BindLayer> parents = new LinkedHashSet<>();
+    @Override
+    public void onClose() {
+        assert minecraft != null;
+        minecraft.setScreen(parent);
+    }
+
+    private Set<String> getParents(@NotNull BindLayer current) {
+        Set<String> parents = new LinkedHashSet<>();
         BindLayer parent = newLayers.get(current.getParentLayer());
-        parents.add(current);
-        while (parent != newLayers.get(BindLayers.INSTANCE.defaultLayer.name)) {
-            if (!parents.add(parent)) {
+        parents.add(current.name);
+        while (parent != newLayers.get(BindLayers.INSTANCE.vanillaLayer.name)) {
+            if (!parents.add(parent.name)) {
                 break;
             }
             parent = newLayers.get(parent.getParentLayer());
         }
-        parents.add(newLayers.get(BindLayers.INSTANCE.defaultLayer.name));
-        parents.remove(current);
+        parents.add(BindLayers.INSTANCE.vanillaLayer.name);
+        parents.remove(current.name);
         return parents;
     }
 
-    private void maskParent(BindLayer layer) {
+    private void maskParent(@NotNull BindLayer layer) {
         Set<BindLayer.Bind> binds = new HashSet<>(layer.binds.values());
         binds.remove(BindLayer.Bind.UNKNOWN);
 
@@ -76,11 +83,11 @@ public class GuidedConflictResolver extends Screen {
         }
     }
 
-    private void remaskChildren(BindLayer layer) {
+    private void remaskChildren(@NotNull BindLayer layer) {
         remaskChildren(layer, Sets.newHashSet(layer));
     }
 
-    private void remaskChildren(BindLayer layer, Set<BindLayer> seenLayers) {
+    private void remaskChildren(@NotNull BindLayer layer, Set<BindLayer> seenLayers) {
         for (BindLayer l : newLayers.values()) {
             if (l.getParentLayer().equals(layer.name) && l != layer) {
                 if (!seenLayers.contains(l)) {
@@ -93,7 +100,7 @@ public class GuidedConflictResolver extends Screen {
         }
     }
 
-    private void unmaskParent(BindLayer layer) {
+    private void unmaskParent(@NotNull BindLayer layer) {
         Set<BindLayer.Bind> binds = new HashSet<>(layer.binds.values());
         binds.remove(BindLayer.Bind.UNKNOWN);
         Set<KeyMapping> unknowns = layer.binds.entrySet().stream().filter(e -> e.getValue()
@@ -126,24 +133,6 @@ public class GuidedConflictResolver extends Screen {
                 .add(BindLayers.provider.keyMappingDefaultToBind(mapping));
         }
 
-        // compute conflicts
-        conflicts = new HashMap<>();
-        for (Map.Entry<String, Set<BindLayer.Bind>> entry : usedKeysByCategory.entrySet()) {
-            Set<String> conflictSet = new HashSet<>();
-            for (Map.Entry<String, Set<BindLayer.Bind>> entry2 : usedKeysByCategory.entrySet()) {
-                if (entry.getKey().equals(entry2.getKey())) {
-                    continue;
-                }
-                for (BindLayer.Bind key : entry.getValue()) {
-                    if (entry2.getValue().contains(key) && key.key != InputConstants.UNKNOWN) {
-                        conflictSet.add(entry2.getKey());
-                        break;
-                    }
-                }
-            }
-            conflicts.put(entry.getKey(), conflictSet);
-        }
-
         Set<String> defaultLayerCategories = Sets.newHashSet(
             "key.categories.movement",
             "key.categories.gameplay",
@@ -156,8 +145,8 @@ public class GuidedConflictResolver extends Screen {
 
         // compute new layers
         BindLayer defaultLayer = new BindLayer(
-            BindLayers.INSTANCE.defaultLayer.name,
-            BindLayers.INSTANCE.defaultLayer.name
+            BindLayers.INSTANCE.vanillaLayer.name,
+            BindLayers.INSTANCE.vanillaLayer.name
         );
         newLayers.put(defaultLayer.name, defaultLayer);
 
@@ -180,6 +169,19 @@ public class GuidedConflictResolver extends Screen {
             remaskChildren(layer);
             newLayers.put(layer.name, layer);
             layer.copyFromDefault(entry.getValue().toArray(new KeyMapping[0]));
+        }
+
+
+        conflicts = new HashMap<>();
+        for (BindLayer layer : newLayers.values()) {
+            for (BindLayer other : newLayers.values()) {
+                if (layer.equals(other)) {
+                    continue;
+                }
+                if (layer.binds.values().stream().anyMatch(e -> other.binds.containsValue(e) && !e.equals(BindLayer.Bind.UNKNOWN))) {
+                    conflicts.computeIfAbsent(layer, (k) -> new HashSet<>()).add(other);
+                }
+            }
         }
 
         for (KeyMapping mapping : mappings) {
@@ -246,11 +248,13 @@ public class GuidedConflictResolver extends Screen {
         renderBackground(poseStack);
 
         // draw string labeling parent
-        drawString(poseStack, font, I18n.get("bindlayers.gui.parent"), width / 2 + 10, height / 2 + 25, 0xFFFFFF);
+        drawCenteredString(poseStack, font, translatable("bindlayers.gui.parent"), width / 2 + 55, height / 2 + 40, 0xFFFFFF);
 
         // draw string labeling merge
-        drawString(poseStack, font, I18n.get("bindlayers.gui.merge"), width / 2 + 10, height / 2 + 40, 0xFFFFFF);
+        drawCenteredString(poseStack, font, translatable("bindlayers.gui.merge"), width / 2 + 155, height / 2 + 40, 0xFFFFFF);
 
+        // draw string labeling force-merge
+        drawCenteredString(poseStack, font, translatable("bindlayers.gui.force_merge"), width / 2 + 55, height / 2 + 65, 0xFFFFFF);
 
         super.render(poseStack, mouseX, mouseY, partialTick);
     }
@@ -283,51 +287,14 @@ public class GuidedConflictResolver extends Screen {
         bindList = addRenderableWidget(new StringListWidget(minecraft, width / 2 - 10, height / 2, 32, height / 2));
         bindList.setLeftPos(width / 2 + 5);
 
-        // cancel
-        cancel = addRenderableWidget(new Button(
-            width / 2 - 100,
-            height - 30,
-            100,
-            20,
-            translatable("gui.cancel"),
-            (button) -> {
-                onClose();
-            }
-        ));
-
-        // save
-        save = addRenderableWidget(new Button(
-            width / 2,
-            height - 30,
-            100,
-            20,
-            translatable("gui.done"),
-            (button) -> {
-                INSTANCE.defaultLayer.copyFrom(newLayers.get(INSTANCE.defaultLayer.name));
-                for (BindLayer layer : newLayers.values()) {
-                    BindLayer l = INSTANCE.getOrCreate(layer.name);
-                    l.copyFrom(layer);
-                }
-                for (String layer : INSTANCE.availableLayers()) {
-                    if (!newLayers.containsKey(layer)) {
-                        BindLayer l = INSTANCE.removeLayer(layer);
-                        l.removeFile();
-                    }
-                }
-                assert minecraft != null;
-                minecraft.options.save();
-                onClose();
-            }
-        ));
-
         // right middle
         // rename box
         assert minecraft != null;
         EditBox renameBox = addRenderableWidget(new EditBox(
             minecraft.font,
-            width / 2 + 10,
+            width / 2 + 5,
             height / 2 + 10,
-            95,
+            200,
             12,
             translatable("bindlayers.gui.rename")
         ));
@@ -347,21 +314,30 @@ public class GuidedConflictResolver extends Screen {
 
         // rename button
         addRenderableWidget(new Button(
-            width / 2 + 137,
-            height / 2 + 10,
-            50,
+            width / 2 + 55,
+            height / 2 + 25,
+            100,
             12,
             translatable("bindlayers.gui.rename"),
             (button) -> {
                 if (currentSelected != null && !renameBox.getValue().isEmpty()) {
                     BindLayer layer = newLayers.get(currentSelected);
+                    Set<BindLayer> conflict = conflicts.get(layer);
                     if (newLayers.containsKey(renameBox.getValue())) {
                         return;
                     }
                     newLayers.remove(currentSelected);
+                    conflicts.remove(currentSelected);
                     BindLayer renamed = new BindLayer(renameBox.getValue(), layer.getParentLayer());
                     renamed.copyFrom(layer);
                     newLayers.put(renameBox.getValue(), renamed);
+                    conflicts.put(renamed, conflict);
+                    conflicts.values().forEach(set -> {
+                        if (set.contains(layer)) {
+                            set.remove(layer);
+                            set.add(renamed);
+                        }
+                    });
                     layerList.init(newLayers.keySet(), false);
                     layerList.setSelected(renamed.name);
                 }
@@ -373,19 +349,19 @@ public class GuidedConflictResolver extends Screen {
 
         // change parent dropdown
         addRenderableWidget(new DropDownWidget(
-            width / 2 + 125,
-            height / 2 + 25,
-            75,
+            width / 2 + 5,
+            height / 2 + 50,
+            95,
             12,
-            () -> literal(currentSelected == null ? get("bindlayers.gui.none") : currentSelected),
+            () -> literal(currentSelected == null ? get("gui.cancel") : currentSelected),
             () -> {
                 if (!Objects.equals(localCurrentParent[0], currentSelected)) {
                     allLayers.clear();
                     localCurrentParent[0] = currentSelected;
-                    if (!Objects.equals(localCurrentParent[0], BindLayers.INSTANCE.defaultLayer.name)) {
+                    if (!Objects.equals(localCurrentParent[0], BindLayers.INSTANCE.vanillaLayer.name)) {
                         newLayers.keySet()
                             .stream()
-                            .filter(s -> s.equals(localCurrentParent[0]))
+                            .filter(s -> !s.equals(localCurrentParent[0]) && !getParents(newLayers.get(s)).contains(localCurrentParent[0]))
                             .forEach(s -> allLayers.put(
                                 literal(s), s));
                     }
@@ -415,9 +391,9 @@ public class GuidedConflictResolver extends Screen {
 
         // `merge` dropdown
         addRenderableWidget(new DropDownWidget(
-            width / 2 + 125,
-            height / 2 + 40,
-            75,
+            width / 2 + 105,
+            height / 2 + 50,
+            95,
             12,
             () -> translatable("bindlayers.gui.none"),
             () -> {
@@ -426,10 +402,10 @@ public class GuidedConflictResolver extends Screen {
                     localCurrentMerge[0] = currentSelected;
                     newLayers.keySet()
                         .stream()
-                        .filter(s -> !s.equals(BindLayers.INSTANCE.defaultLayer.name) && !conflicts.computeIfAbsent(
-                            currentSelected,
+                        .filter(s -> !s.equals(BindLayers.INSTANCE.vanillaLayer.name) && !conflicts.computeIfAbsent(
+                            newLayers.get(currentSelected),
                             c -> new HashSet<>()
-                        ).contains(s))
+                        ).contains(s) && !s.equals(currentSelected))
                         .forEach(s -> nonConflictLayers.put(
                             literal(s), s));
                 }
@@ -441,30 +417,118 @@ public class GuidedConflictResolver extends Screen {
             (c) -> {
                 if (currentSelected != null) {
                     BindLayer layer = newLayers.get(currentSelected);
-                    BindLayer merge = newLayers.get(nonConflictLayers.get(c));
-                    if (merge == null) {
+                    String ln = nonConflictLayers.get(c);
+                    if (ln == null) {
                         return;
                     }
-                    unmaskParent(layer);
-                    unmaskParent(merge);
-                    layer.addAll(merge);
-                    maskParent(layer);
-                    newLayers.remove(nonConflictLayers.get(c));
-                    for (BindLayer l : newLayers.values()) {
-                        if (l.getParentLayer().equals(nonConflictLayers.get(c))) {
-                            l.setParentLayer(currentSelected);
-                        }
-                    }
-                    remaskChildren(layer);
-                    layerList.init(newLayers.keySet(), false);
-                    layerList.setSelected(layer.name);
+                    BindLayer merge = newLayers.get(ln);
+                    merge(layer, merge);
+                    localCurrentMerge[0] = null;
                 }
             },
             null
         ));
 
-        updateSelected();
+        // force-merge dropdown
+        addRenderableWidget(new DropDownWidget(
+            width / 2 + 5,
+            height / 2 + 75,
+            95,
+            12,
+            () -> translatable("bindlayers.gui.none"),
+            () -> {
+                if (!Objects.equals(localCurrentMerge[0], currentSelected)) {
+                    nonConflictLayers.clear();
+                    localCurrentMerge[0] = currentSelected;
+                    newLayers.keySet()
+                        .stream()
+                        .filter(s -> !s.equals(BindLayers.INSTANCE.vanillaLayer.name) && !s.equals(currentSelected))
+                        .forEach(s -> nonConflictLayers.put(
+                            literal(s), s));
+                }
+                Set<Component> ret = new LinkedHashSet<>();
+                ret.add(translatable("bindlayers.gui.none"));
+                ret.addAll(nonConflictLayers.keySet());
+                return ret;
+            },
+            (c) -> {
+                if (currentSelected != null) {
+                    BindLayer layer = newLayers.get(currentSelected);
+                    String ln = nonConflictLayers.get(c);
+                    if (ln == null) {
+                        return;
+                    }
+                    BindLayer merge = newLayers.get(ln);
+                    merge(layer, merge);
+                    localCurrentMerge[0] = null;
+                }
+            },
+            null
+        ));
 
+
+        // cancel
+        cancel = addRenderableWidget(new Button(
+            width / 2 - 100,
+            height - 30,
+            100,
+            20,
+            translatable("gui.cancel"),
+            (button) -> {
+                onClose();
+            }
+        ));
+
+        // save
+        save = addRenderableWidget(new Button(
+            width / 2,
+            height - 30,
+            100,
+            20,
+            translatable("gui.done"),
+            (button) -> {
+                INSTANCE.vanillaLayer.copyFrom(newLayers.get(INSTANCE.vanillaLayer.name));
+                for (BindLayer layer : newLayers.values()) {
+                    BindLayer l = INSTANCE.getOrCreate(layer.name);
+                    l.copyFrom(layer);
+                }
+                for (String layer : INSTANCE.availableLayers()) {
+                    if (!newLayers.containsKey(layer)) {
+                        BindLayer l = INSTANCE.removeLayer(layer);
+                        l.removeFile();
+                    }
+                }
+                assert minecraft != null;
+                minecraft.options.save();
+                onClose();
+            }
+        ));
+
+        updateSelected();
+    }
+
+    private void merge(BindLayer layer, BindLayer merge) {
+        unmaskParent(layer);
+        unmaskParent(merge);
+        layer.addAll(merge);
+        maskParent(layer);
+        newLayers.remove(merge.name);
+        conflicts.computeIfAbsent(layer, cs -> new HashSet<>()).addAll(conflicts.getOrDefault(merge, new HashSet<>()));
+        conflicts.remove(merge);
+        for (Set<BindLayer> set : conflicts.values()) {
+            if (set.contains(merge)) {
+                set.remove(merge);
+                set.add(layer);
+            }
+        }
+        for (BindLayer l : newLayers.values()) {
+            if (l.getParentLayer().equals(merge.name)) {
+                l.setParentLayer(layer.name);
+            }
+        }
+        remaskChildren(layer);
+        layerList.init(newLayers.keySet(), false);
+        layerList.setSelected(layer.name);
     }
 
 }

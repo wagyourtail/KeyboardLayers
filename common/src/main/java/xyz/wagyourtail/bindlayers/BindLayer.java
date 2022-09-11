@@ -33,7 +33,7 @@ public class BindLayer {
 
     public String getParentLayer() {
         if (parentLayer == null) {
-            parentLayer = BindLayers.INSTANCE.defaultLayer.name;
+            parentLayer = BindLayers.INSTANCE.vanillaLayer.name;
         }
         return parentLayer;
     }
@@ -126,7 +126,7 @@ public class BindLayer {
         for (KeyMapping mapping : mappings) {
             binds.put(mapping, BindLayers.provider.keyMappingDefaultToBind(mapping));
         }
-        parentLayer = BindLayers.INSTANCE.defaultLayer.name;
+        parentLayer = BindLayers.INSTANCE.vanillaLayer.name;
     }
 
     public void copyFrom(BindLayer layer) {

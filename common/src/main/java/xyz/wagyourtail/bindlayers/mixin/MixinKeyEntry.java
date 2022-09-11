@@ -25,7 +25,7 @@ public class MixinKeyEntry {
     @Inject(method = {"method_19870", "m_193933_"}, at = @At(value = "RETURN"))
     public void bindlayers$onKeyReset(KeyMapping keyMapping, Button button, CallbackInfo ci) {
         BindLayer layer = BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer());
-        if (layer == BindLayers.INSTANCE.defaultLayer) {
+        if (layer == BindLayers.INSTANCE.vanillaLayer) {
             return;
         }
         layer.binds.remove(keyMapping);

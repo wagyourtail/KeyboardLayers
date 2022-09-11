@@ -118,7 +118,7 @@ public class ChangeParentScreen extends Screen {
         Set<String> parents = new HashSet<>();
         String parent = layer.name;
         warnLoop = false;
-        while (!parent.equals(BindLayers.INSTANCE.defaultLayer.name)) {
+        while (!parent.equals(BindLayers.INSTANCE.vanillaLayer.name)) {
             if (parents.contains(layerName)) {
                 warnLoop = true;
                 break;

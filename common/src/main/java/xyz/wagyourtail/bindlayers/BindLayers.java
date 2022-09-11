@@ -31,7 +31,7 @@ public class BindLayers {
 
     private final Map<String, BindLayer> layers = new Object2ObjectRBTreeMap<>();
 
-    public final BindLayer defaultLayer = new BindLayer("default", "default");
+    public final BindLayer vanillaLayer = new BindLayer("vanilla", "vanilla");
 
     public final KeyMapping nextLayer = new KeyMapping(
         "bindlayers.next_layer",
@@ -49,7 +49,7 @@ public class BindLayers {
         "bindlayers.category"
     );
 
-    private BindLayer activeLayer = defaultLayer;
+    private BindLayer activeLayer = vanillaLayer;
     private List<BindLayer> layerStack = ImmutableList.of(activeLayer);
 
     private LayerToast toast = null;
@@ -72,7 +72,7 @@ public class BindLayers {
 
     public void onGameOptionsLoad(Options gameOptions) throws IOException {
         layers.clear();
-        layers.put("default", defaultLayer);
+        layers.put(vanillaLayer.name, vanillaLayer);
         String active = activeLayer.name;
 
         if (!Files.exists(bindDir)) {
@@ -96,7 +96,7 @@ public class BindLayers {
             });
         }
 
-        defaultLayer.copyFrom(gameOptions.keyMappings);
+        vanillaLayer.copyFrom(gameOptions.keyMappings);
 
         setActiveLayer(active);
     }
@@ -143,14 +143,14 @@ public class BindLayers {
     public void setActiveLayer(String name, boolean quiet) {
         LinkedHashSet<BindLayer> layers = new LinkedHashSet<>();
         BindLayer layer = activeLayer = getOrCreate(name);
-        while (layer != defaultLayer) {
+        while (layer != vanillaLayer) {
             if (!layers.add(layer)) {
                 LOGGER.warn("Layer loop detected!, fixing by stopping now at default layer");
                 break;
             }
             layer = getOrCreate(layer.getParentLayer());
         }
-        layers.add(defaultLayer);
+        layers.add(vanillaLayer);
         List<BindLayer> layerList = new ArrayList<>(layers);
         Collections.reverse(layerList);
         for (BindLayer bindLayer : layerList) {
@@ -177,7 +177,7 @@ public class BindLayers {
     }
 
     public BindLayer getOrCreate(String name) {
-        return layers.computeIfAbsent(name, (s) -> new BindLayer(s, defaultLayer.name));
+        return layers.computeIfAbsent(name, (s) -> new BindLayer(s, vanillaLayer.name));
     }
 
     public List<BindLayer> getLayerStack() {
@@ -192,7 +192,7 @@ public class BindLayers {
         Set<BindLayer> layers = new LinkedHashSet<>();
         for (BindLayer layer : this.layers.values()) {
             if (layer.getParentLayer().equals(name)) {
-                if (!layer.name.equals("default")) {
+                if (!layer.name.equals(vanillaLayer.name)) {
                     layers.add(layer);
                     layers.addAll(getChildLayers(layer.name));
                 }

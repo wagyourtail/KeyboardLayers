@@ -55,9 +55,12 @@ public class DropDownWidget extends AbstractWidget {
     public void render(@NotNull PoseStack poseStack, int i, int j, float f) {
         isHovered = isMouseOver(i, j);
         if (isFocused()) {
+            poseStack.pushPose();
+            poseStack.translate(0, 0, 1);
             for (AbstractWidget child : children) {
                 child.render(poseStack, i, j, f);
             }
+            poseStack.popPose();
         } else {
             renderButton(poseStack, i, j, f);
         }

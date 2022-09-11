@@ -23,7 +23,7 @@ public class CreateLayerScreen extends Screen {
 
     private EditBox nameField;
 
-    private BindLayer parentLayer = BindLayers.INSTANCE.defaultLayer;
+    private BindLayer parentLayer = BindLayers.INSTANCE.vanillaLayer;
 
     public CreateLayerScreen(Screen parent) {
         super(translatable("bindlayers.gui.rename_layer"));

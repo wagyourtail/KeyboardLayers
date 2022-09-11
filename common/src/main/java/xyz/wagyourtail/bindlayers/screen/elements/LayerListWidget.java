@@ -48,8 +48,13 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
 
     public void init(Set<String> availableLayers, boolean skipDefault) {
         clearEntries();
+        if (!skipDefault) {
+            if (availableLayers.contains(BindLayers.INSTANCE.vanillaLayer.name)) {
+                addEntry(new LayerEntry(BindLayers.INSTANCE.vanillaLayer.name));
+            }
+        }
         for (String layer : availableLayers) {
-            if (Objects.equals(layer, BindLayers.INSTANCE.defaultLayer.name) && skipDefault) {
+            if (Objects.equals(layer, BindLayers.INSTANCE.vanillaLayer.name)) {
                 continue;
             }
             addEntry(new LayerEntry(layer));

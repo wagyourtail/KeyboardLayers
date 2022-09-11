@@ -33,13 +33,13 @@ public class MixinOptions {
         Set<String> layers = BindLayers.INSTANCE.availableLayers();
         for (String layer : layers) {
             BindLayer l = BindLayers.INSTANCE.getOrCreate(layer);
-            if (l != BindLayers.INSTANCE.defaultLayer) {
+            if (l != BindLayers.INSTANCE.vanillaLayer) {
                 //                System.out.println("saving layer: " + layer);
                 l.save();
             }
         }
 
-        BindLayers.INSTANCE.defaultLayer.applyLayer();
+        BindLayers.INSTANCE.vanillaLayer.applyLayer();
 
     }
 

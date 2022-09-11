@@ -18,17 +18,24 @@ subprojects {
         maven {
             url "https://maven.parchmentmc.org/"
         }
+        maven {
+            url "https://maven.blamejared.com/"
+        }
     }
 
     dependencies {
         minecraft "com.mojang:minecraft:${rootProject.minecraft_version}"
-        // The following line declares the mojmap mappings, you may use other mappings as well
+
         mappings loom.layered() {
             officialMojangMappings()
             parchment("org.parchmentmc.data:parchment-1.19.2:2022.08.28@zip")
         }
-        // The following line declares the yarn mappings you may select this one as well.
-        // mappings "net.fabricmc:yarn:1.19.2+build.3:v2"
+
+        modImplementation "com.blamejared.controlling:Controlling-${project.name}-${rootProject.minecraft_version}:${rootProject.controlling_version}"
+    }
+
+    remapJar {
+        classifier "mc${rootProject.minecraft_version}-${project.name}"
     }
 }
 

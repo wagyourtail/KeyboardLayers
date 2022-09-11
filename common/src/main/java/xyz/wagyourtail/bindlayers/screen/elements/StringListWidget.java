@@ -18,13 +18,24 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
         return this.x1 - 6;
     }
 
-    public int addEntry(String entry) {
+    public int addEntry(Component entry) {
         return addEntry(new StringEntry(entry));
+    }
+
+    public int addEntry(String entry) {
+        return addEntry(new StringEntry(Component.literal(entry)));
     }
 
     public void init(Set<String> strings) {
         clearEntries();
         for (String s : strings) {
+            addEntry(Component.literal(s));
+        }
+    }
+
+    public void initWithComponent(Set<Component> strings) {
+        clearEntries();
+        for (Component s : strings) {
             addEntry(s);
         }
     }
@@ -40,9 +51,9 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
     }
 
     public class StringEntry extends ObjectSelectionList.Entry<StringEntry> {
-        public final String string;
+        public final Component string;
 
-        public StringEntry(String string) {
+        public StringEntry(Component string) {
             this.string = string;
         }
 

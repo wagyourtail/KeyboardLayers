@@ -6,7 +6,8 @@
         "KeyMappingAccessor",
         "MixinKeyBindsScreen",
         "MixinKeyEntry",
-        "MixinOptions"
+        "MixinOptions",
+        "compat.controlling.MixinKeyEntry"
     ],
     "mixins": [
     ],

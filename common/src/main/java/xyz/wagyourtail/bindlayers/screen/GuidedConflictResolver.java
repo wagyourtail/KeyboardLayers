@@ -243,6 +243,7 @@ public class GuidedConflictResolver extends Screen {
         binds.remove(BindLayer.Bind.UNKNOWN);
 
         BindLayer parent = newLayers.get(layer.getParentLayer());
+        if (parent == layer) return;
         for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
             if (binds.contains(e.getValue())) {
                 layer.binds.put(e.getKey(), BindLayer.Bind.UNKNOWN);
@@ -251,11 +252,18 @@ public class GuidedConflictResolver extends Screen {
     }
 
     private void remaskChildren(BindLayer layer) {
+        remaskChildren(layer, Sets.newHashSet(layer));
+    }
+
+    private void remaskChildren(BindLayer layer, Set<BindLayer> seenLayers) {
         for (BindLayer l : newLayers.values()) {
-            if (l.getParentLayer().equals(layer.name)) {
-                unmaskParent(l);
-                maskParent(l);
-                remaskChildren(l);
+            if (l.getParentLayer().equals(layer.name) && l != layer) {
+                if (!seenLayers.contains(l)) {
+                    seenLayers.add(l);
+                    unmaskParent(l);
+                    maskParent(l);
+                    remaskChildren(l, seenLayers);
+                }
             }
         }
     }
@@ -266,6 +274,7 @@ public class GuidedConflictResolver extends Screen {
         Set<KeyMapping> unknowns = layer.binds.entrySet().stream().filter(e -> e.getValue().equals(BindLayer.Bind.UNKNOWN)).map(Map.Entry::getKey).collect(Collectors.toSet());
 
         BindLayer parent = newLayers.get(layer.getParentLayer());
+        if (parent == layer) return;
         for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
             if (binds.contains(e.getValue()) && unknowns.contains(e.getKey())) {
                 layer.binds.remove(e.getKey());
@@ -320,7 +329,7 @@ public class GuidedConflictResolver extends Screen {
 
         // combine binds from vanilla categories
         defaultLayer.copyFromDefault(defaultLayerCategories.stream()
-            .flatMap(e -> mappingsByCategory.get(e).stream())
+            .flatMap(e -> mappingsByCategory.getOrDefault(e, new HashSet<>()).stream())
             .toArray(KeyMapping[]::new));
 
         // add new layer for each remaining category
@@ -378,8 +387,8 @@ public class GuidedConflictResolver extends Screen {
                     }
                 }
             } else {
-                bindList.init(new TreeSet<>(newLayers.get(currentSelected).binds.keySet().stream().map(bind ->
-                    I18n.get(bind.getName()) + "  -  " + I18n.get(bind.saveString())).collect(Collectors.toSet())));
+                bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.keySet().stream().map(bind ->
+                    Component.translatable(bind.getName()).append("  -  ").append(InputConstants.getKey(bind.saveString()).getDisplayName())).collect(Collectors.toSet())));
                 for (GuiEventListener listener : children()) {
                     if (listener instanceof Button) {
                         ((Button) listener).active = true;

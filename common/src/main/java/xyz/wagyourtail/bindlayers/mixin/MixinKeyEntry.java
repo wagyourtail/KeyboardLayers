@@ -15,14 +15,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.wagyourtail.bindlayers.BindLayer;
 import xyz.wagyourtail.bindlayers.BindLayers;
 
-@Mixin(value = KeyBindsList.KeyEntry.class)
+@Mixin(KeyBindsList.KeyEntry.class)
 public class MixinKeyEntry {
-    @Shadow
+    @Shadow(aliases = "keybinding")
     @Final
     private KeyMapping key;
 
 
-    @Inject(method = "method_19870", at = @At(value = "RETURN"))
+    @Inject(method = { "method_19870", "m_193933_" }, at = @At(value = "RETURN"))
     public void bindlayers$onKeyReset(KeyMapping keyMapping, Button button, CallbackInfo ci) {
         BindLayer layer = BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer());
         if (layer == BindLayers.INSTANCE.defaultLayer) {

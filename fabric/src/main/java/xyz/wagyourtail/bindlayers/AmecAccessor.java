@@ -2,6 +2,8 @@ package xyz.wagyourtail.bindlayers;
 
 import de.siphalor.amecs.api.AmecsKeyBinding;
 import de.siphalor.amecs.api.KeyModifiers;
+import de.siphalor.amecs.impl.duck.IKeyBinding;
+import net.minecraft.client.KeyMapping;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -33,6 +35,14 @@ public class AmecAccessor {
             return (KeyModifiers) defaultMods.invoke(binding);
         } catch (Throwable e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+    public static void resetAmecsKeybind(KeyMapping keyMapping) {
+        ((IKeyBinding) keyMapping).amecs$getKeyModifiers().unset();
+        if (keyMapping instanceof AmecsKeyBinding) {
+            ((AmecsKeyBinding) keyMapping).resetKeyBinding();
         }
     }
 }

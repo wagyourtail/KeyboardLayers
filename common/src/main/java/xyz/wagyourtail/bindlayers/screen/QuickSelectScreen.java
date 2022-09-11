@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 public class QuickSelectScreen extends Screen {
     String searchString = "";

@@ -8,15 +8,15 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import xyz.wagyourtail.bindlayers.BindLayer;
 import xyz.wagyourtail.bindlayers.BindLayers;
+import xyz.wagyourtail.bindlayers.legacy.ComponentHelper;
 import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
-import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 public class CreateLayerScreen extends Screen {
     private final Screen parent;
@@ -57,7 +57,7 @@ public class CreateLayerScreen extends Screen {
         addRenderableWidget(nameField);
 
         Map<Component, String> layers = BindLayers.INSTANCE.availableLayers().stream().collect(Collectors.toMap(
-            Component::literal,
+            ComponentHelper::literal,
             Function.identity()
         ));
 
@@ -81,7 +81,7 @@ public class CreateLayerScreen extends Screen {
             translatable("bindlayers.gui.create"),
             (button) -> {
                 if (!nameField.getValue().isEmpty()) {
-                    BindLayer l = INSTANCE.getOrCreate(nameField.getValue());
+                    BindLayer l = BindLayers.INSTANCE.getOrCreate(nameField.getValue());
                     l.setParentLayer(parentLayer.name);
                     onClose();
                 }

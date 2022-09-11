@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 
 import java.util.Set;
 
-import static net.minecraft.network.chat.Component.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
 
 public class StringListWidget extends ObjectSelectionList<StringListWidget.StringEntry> {
     private static final int ENTRY_HEIGHT = 12;

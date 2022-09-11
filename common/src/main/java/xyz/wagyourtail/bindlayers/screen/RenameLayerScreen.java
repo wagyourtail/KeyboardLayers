@@ -10,8 +10,8 @@ import xyz.wagyourtail.bindlayers.BindLayers;
 
 import java.io.IOException;
 
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 public class RenameLayerScreen extends Screen {
     public final Screen parent;

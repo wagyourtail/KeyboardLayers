@@ -1,7 +1,7 @@
 package xyz.wagyourtail.bindlayers.forge;
 
-import net.minecraftforge.client.ConfigScreenHandler;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.ClientRegistry;
+import net.minecraftforge.client.ConfigGuiHandler;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModLoadingContext;
@@ -15,8 +15,8 @@ public class BindLayersForge {
 
     public BindLayersForge() {
         ModLoadingContext.get().registerExtensionPoint(
-            ConfigScreenHandler.ConfigScreenFactory.class,
-            () -> new ConfigScreenHandler.ConfigScreenFactory(
+            ConfigGuiHandler.ConfigGuiFactory.class,
+            () -> new ConfigGuiHandler.ConfigGuiFactory(
                 (mc, parent) -> new LayerManagementScreen(parent)
             )
         );
@@ -24,6 +24,7 @@ public class BindLayersForge {
 
     @SubscribeEvent
     public void onClientSetup(FMLClientSetupEvent event) {
+        onKeyBinds();
     }
 
     @SubscribeEvent
@@ -33,11 +34,10 @@ public class BindLayersForge {
         }
     }
 
-    @SubscribeEvent
-    public void onKeyBinds(RegisterKeyMappingsEvent event) {
-        event.register(BindLayers.INSTANCE.nextLayer);
-        event.register(BindLayers.INSTANCE.prevLayer);
-        event.register(BindLayers.INSTANCE.quickSelect);
+    public void onKeyBinds() {
+        ClientRegistry.registerKeyBinding(BindLayers.INSTANCE.nextLayer);
+        ClientRegistry.registerKeyBinding(BindLayers.INSTANCE.prevLayer);
+        ClientRegistry.registerKeyBinding(BindLayers.INSTANCE.quickSelect);
     }
 
 }

@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.wagyourtail.bindlayers.BindLayer;
 import xyz.wagyourtail.bindlayers.BindLayers;
 
-import static net.minecraft.network.chat.Component.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
 
 @Pseudo
 @Mixin(NewKeyBindsList.KeyEntry.class)
@@ -37,7 +37,7 @@ public class MixinKeyEntry {
         layer.binds.remove(keyMapping);
     }
 
-    @Redirect(method = {"render", "method_25343", "m_6311_"},
+    @Redirect(method = { "method_25343", "m_6311_", "render" },
         at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Ljava/lang/String;FFI)I"))
     private int bindlayers$onRenderName(Font instance, PoseStack poseStack, String text, float x, float y, int color) {

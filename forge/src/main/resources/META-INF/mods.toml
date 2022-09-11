@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[40,)"
 issueTrackerURL = "https://github.com/wagyourtail/KeyboardLayers"
 license = "MPL-2.0"
 
@@ -16,13 +16,13 @@ logoFile = "assets/bindlayers/icon.png"
 [[dependencies.bindlayers]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[40,)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.bindlayers]]
 modId = "minecraft"
 mandatory = true
-versionRange = "[1.19, 1.20)"
+versionRange = "[1.18, 1.19)"
 ordering = "NONE"
 side = "BOTH"

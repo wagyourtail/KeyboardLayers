@@ -14,10 +14,9 @@ import xyz.wagyourtail.bindlayers.screen.elements.LayerListWidget;
 import java.util.Set;
 
 import static java.lang.String.join;
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
-
 public class LayerManagementScreen extends Screen {
     Screen parent;
 

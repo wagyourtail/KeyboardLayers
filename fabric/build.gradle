@@ -37,7 +37,8 @@ dependencies {
     modApi "net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}"
 
     modImplementation "com.terraformersmc:modmenu:${rootProject.modmenu_version}"
-    modImplementation "de.siphalor:amecs-1.19:${rootProject.amecs_version}", {
+    var amecs = rootProject.amecs_version.indexOf("-")
+    modImplementation "de.siphalor:amecs-${rootProject.amecs_version.substring(0, amecs)}:${rootProject.amecs_version.substring(amecs+1)}", {
         exclude group: "com.github.astei"
         exclude group: "net.fabricmc.fabric-api"
         exclude group: "de.siphalor", module: "nmuk-1.19"

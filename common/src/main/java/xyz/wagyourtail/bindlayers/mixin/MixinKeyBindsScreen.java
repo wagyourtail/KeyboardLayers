@@ -21,9 +21,9 @@ import xyz.wagyourtail.bindlayers.screen.elements.DropDownWidget;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static net.minecraft.network.chat.Component.literal;
-import static net.minecraft.network.chat.Component.translatable;
 import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.translatable;
 
 @Mixin({KeyBindsScreen.class, NewKeyBindsScreen.class})
 public class MixinKeyBindsScreen extends OptionsSubScreen {

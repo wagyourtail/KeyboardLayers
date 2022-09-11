@@ -15,6 +15,8 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
+
 public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEntry> {
     public static final int ENTRY_HEIGHT = 25;
     public final Font font;
@@ -95,7 +97,7 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
             // draw the layer name top left
             drawString(poseStack, font, layerName, left + 10, top, 0xFFFFFF);
             // parent name below
-            drawString(poseStack, font, Component.literal(layer.getParentLayer())
+            drawString(poseStack, font, literal(layer.getParentLayer())
                 .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC), left + 10, top + 10, 0xFFFFFF);
         }
 

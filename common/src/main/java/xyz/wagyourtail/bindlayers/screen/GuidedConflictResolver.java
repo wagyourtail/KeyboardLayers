@@ -178,7 +178,7 @@ public class GuidedConflictResolver extends Screen {
         Map<Component, String> nonConflictLayers = new LinkedHashMap<>();
         final String[] localCurrentMerge = {currentSelected};
 
-        // merge dropdown
+        // `merge` dropdown
         addRenderableWidget(new DropDownWidget(
             width / 2 + 125,
             height / 2 + 40,
@@ -211,6 +211,7 @@ public class GuidedConflictResolver extends Screen {
                             l.setParentLayer(currentSelected);
                         }
                     }
+                    remaskChildren(layer);
                     layerList.init(newLayers.keySet(), false);
                     layerList.setSelected(layer.name);
                 }

@@ -164,8 +164,12 @@ public class GuidedConflictResolver extends Screen {
                 if (currentSelected != null) {
                     BindLayer layer = newLayers.get(currentSelected);
                     String l = allLayers.get(c);
-                    if (l != null)
+                    if (l != null) {
+                        unmaskParent(layer);
                         layer.setParentLayer(l);
+                        maskParent(layer);
+                        remaskChildren(layer);
+                    }
                 }
             },
             null
@@ -197,7 +201,10 @@ public class GuidedConflictResolver extends Screen {
                     BindLayer layer = newLayers.get(currentSelected);
                     BindLayer merge = newLayers.get(nonConflictLayers.get(c));
                     if (merge == null) return;
+                    unmaskParent(layer);
+                    unmaskParent(merge);
                     layer.addAll(merge);
+                    maskParent(layer);
                     newLayers.remove(nonConflictLayers.get(c));
                     for (BindLayer l : newLayers.values()) {
                         if (l.getParentLayer().equals(nonConflictLayers.get(c))) {
@@ -213,6 +220,56 @@ public class GuidedConflictResolver extends Screen {
 
         updateSelected();
 
+    }
+
+    private Set<BindLayer> getParents(BindLayer current) {
+        Set<BindLayer> parents = new LinkedHashSet<>();
+        BindLayer parent = newLayers.get(current.getParentLayer());
+        parents.add(current);
+        while (parent != newLayers.get(BindLayers.INSTANCE.defaultLayer.name)) {
+            if (!parents.add(parent)) {
+                break;
+            }
+            parent = newLayers.get(parent.getParentLayer());
+        }
+        parents.add(newLayers.get(BindLayers.INSTANCE.defaultLayer.name));
+        parents.remove(current);
+        return parents;
+    }
+
+    private void maskParent(BindLayer layer) {
+        Set<BindLayer.Bind> binds = new HashSet<>(layer.binds.values());
+        binds.remove(BindLayer.Bind.UNKNOWN);
+
+        BindLayer parent = newLayers.get(layer.getParentLayer());
+        for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
+            if (binds.contains(e.getValue())) {
+                layer.binds.put(e.getKey(), BindLayer.Bind.UNKNOWN);
+            }
+        }
+    }
+
+    private void remaskChildren(BindLayer layer) {
+        for (BindLayer l : newLayers.values()) {
+            if (l.getParentLayer().equals(layer.name)) {
+                unmaskParent(l);
+                maskParent(l);
+                remaskChildren(l);
+            }
+        }
+    }
+
+    private void unmaskParent(BindLayer layer) {
+        Set<BindLayer.Bind> binds = new HashSet<>(layer.binds.values());
+        binds.remove(BindLayer.Bind.UNKNOWN);
+        Set<KeyMapping> unknowns = layer.binds.entrySet().stream().filter(e -> e.getValue().equals(BindLayer.Bind.UNKNOWN)).map(Map.Entry::getKey).collect(Collectors.toSet());
+
+        BindLayer parent = newLayers.get(layer.getParentLayer());
+        for (Map.Entry<KeyMapping, BindLayer.Bind> e : parent.binds.entrySet()) {
+            if (binds.contains(e.getValue()) && unknowns.contains(e.getKey())) {
+                layer.binds.remove(e.getKey());
+            }
+        }
     }
 
     private void firstInit() {
@@ -271,14 +328,16 @@ public class GuidedConflictResolver extends Screen {
             String translatedName = I18n.get(entry.getKey());
             // remove spaces and make pascal case
             String name = Arrays.stream(translatedName.split(" ")).map(e -> e.substring(0, 1).toUpperCase() + e.substring(1).toLowerCase()).collect(Collectors.joining());
-            BindLayer layer = new BindLayer(name, translatedName);
+            BindLayer layer = new BindLayer(name, defaultLayer.name);
+            maskParent(layer);
+            remaskChildren(layer);
             newLayers.put(layer.name, layer);
             layer.copyFromDefault(entry.getValue().toArray(new KeyMapping[0]));
         }
 
         for (KeyMapping mapping : mappings) {
             if (defaultLayer.binds.containsKey(mapping)) continue;
-            defaultLayer.binds.put(mapping, new BindLayer.Bind(InputConstants.UNKNOWN, 0));
+            defaultLayer.binds.put(mapping, BindLayer.Bind.UNKNOWN);
         }
     }
 

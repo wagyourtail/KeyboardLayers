@@ -157,6 +157,7 @@ public class BindLayer {
     }
 
     public static class Bind {
+        public static final BindLayer.Bind UNKNOWN = new BindLayer.Bind(InputConstants.UNKNOWN, 0);
         public final InputConstants.Key key;
         public final int mods;
 

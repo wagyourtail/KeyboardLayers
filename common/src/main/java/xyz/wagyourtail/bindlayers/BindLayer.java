@@ -17,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static net.minecraft.network.chat.Component.literal;
+import static xyz.wagyourtail.bindlayers.legacy.ComponentHelper.literal;
 
 public class BindLayer {
     public final String name;

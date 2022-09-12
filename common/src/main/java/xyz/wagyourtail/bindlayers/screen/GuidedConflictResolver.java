@@ -2,7 +2,6 @@ package xyz.wagyourtail.bindlayers.screen;
 
 import com.google.common.collect.Sets;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
@@ -221,13 +220,13 @@ public class GuidedConflictResolver extends Screen {
                     }
                 }
             } else {
-                bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.keySet()
+                bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.entrySet()
                     .stream()
                     .map(bind ->
-                        Component.translatable(bind.getName())
+                        Component.translatable(bind.getKey().getName())
                             .append("  -  ")
-                            .append(InputConstants.getKey(bind.saveString()).getDisplayName()))
-                    .collect(Collectors.toSet())));
+                            .append(bind.getValue().displayName()))
+                    .collect(Collectors.toList())));
                 for (GuiEventListener listener : children()) {
                     if (listener instanceof Button) {
                         ((Button) listener).active = true;

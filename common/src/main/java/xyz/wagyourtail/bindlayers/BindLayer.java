@@ -3,6 +3,8 @@ package xyz.wagyourtail.bindlayers;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Options;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
@@ -14,6 +16,8 @@ import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
+import static net.minecraft.network.chat.Component.literal;
 
 public class BindLayer {
     public final String name;
@@ -183,6 +187,17 @@ public class BindLayer {
             }
             Bind bind = (Bind) o;
             return mods == bind.mods && Objects.equals(key, bind.key);
+        }
+        public Component displayName() {
+            MutableComponent c = literal("");
+            for (Mods mod : Mods.values()) {
+                if ((mods & mod.code) != 0) {
+                    c.append(literal(mod.name()));
+                    c.append(literal(" "));
+                }
+            }
+            c.append(key.getDisplayName());
+            return c;
         }
 
     }

@@ -5,7 +5,7 @@
     "bindlayers.quick_select": "Quick Select",
     "bindlayers.toast.layer_change.title": "Layer Changed",
     "bindlayers.gui.rename": "Rename",
-    "bindlayers.gui.layer_generator": "Layer Generator",
+    "bindlayers.gui.layer_generator": "Layer Gen. (BETA)",
     "bindlayers.gui.none": "None",
     "bindlayers.layer.confirm_delete": "Are you sure you want to delete this layer?",
     "bindlayers.layer.confirm_delete2": "This will also delete all child layers:",

@@ -65,13 +65,13 @@ public class RenameLayerScreen extends Screen {
         nameBox = addRenderableWidget(
             new EditBox(font, width / 2 - 100, height / 2 - 10, 200, 20, literal("New Name"))
         );
-        nameBox.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]+"));
+        nameBox.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]*"));
         nameBox.setMaxLength(32);
         nameBox.setBordered(true);
         nameBox.setTextColor(-1);
         nameBox.setValue(oldName);
         nameBox.setResponder(s -> {
-            if (BindLayers.INSTANCE.availableLayers().contains(s) && !s.equals(oldName)) {
+            if (nameBox.getValue().length() == 0 || (BindLayers.INSTANCE.availableLayers().contains(s) && !s.equals(oldName))) {
                 nameBox.setTextColor(0xFF0000);
             } else {
                 nameBox.setTextColor(0xFFFFFF);

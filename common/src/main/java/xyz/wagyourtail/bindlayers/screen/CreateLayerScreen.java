@@ -26,7 +26,7 @@ public class CreateLayerScreen extends Screen {
     private BindLayer parentLayer = BindLayers.INSTANCE.vanillaLayer;
 
     public CreateLayerScreen(Screen parent) {
-        super(translatable("bindlayers.gui.rename_layer"));
+        super(translatable("bindlayers.gui.create_layer"));
         this.parent = parent;
     }
 
@@ -53,7 +53,7 @@ public class CreateLayerScreen extends Screen {
         nameField.setBordered(true);
         nameField.setTextColor(-1);
         nameField.setValue("");
-        nameField.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]+"));
+        nameField.setFilter(s -> s.matches("[^#%&*+\\-/:;<=>?@\\[\\]^`{|}~\\\\]*"));
         addRenderableWidget(nameField);
 
         Map<Component, String> layers = BindLayers.INSTANCE.availableLayers().stream().collect(Collectors.toMap(
@@ -78,7 +78,7 @@ public class CreateLayerScreen extends Screen {
             height - 30,
             200,
             20,
-            translatable("gui.create"),
+            translatable("bindlayers.gui.create"),
             (button) -> {
                 if (!nameField.getValue().isEmpty()) {
                     BindLayer l = INSTANCE.getOrCreate(nameField.getValue());

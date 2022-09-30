@@ -8,8 +8,7 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -22,7 +21,9 @@ public class DropDownWidget extends AbstractWidget {
     @Nullable
     final Runnable addOption;
 
-    Set<AbstractWidget> children = new HashSet<>();
+    Deque<AbstractWidget> children = new ArrayDeque<>();
+
+    Deque<AbstractWidget> hiddenChildren = new ArrayDeque<>();
 
     @SuppressWarnings("ConstantConditions")
     public DropDownWidget(int i, int j, int k, int l, Supplier<Component> selected, Supplier<Set<Component>> options, Consumer<Component> select, @Nullable Runnable addOption) {
@@ -43,10 +44,21 @@ public class DropDownWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double d, double e, double f) {
-        for (AbstractWidget child : children) {
-            if (child.mouseScrolled(d, e, f)) {
-                return true;
-            }
+        if (f > 0 && hiddenChildren.size() > 0) {
+            AbstractWidget w = children.removeFirst();
+            children.addFirst(hiddenChildren.removeLast());
+            children.addFirst(w);
+        } else if (f < 0 && children.size() > 1) {
+            AbstractWidget w = children.removeFirst();
+            hiddenChildren.addLast(children.removeFirst());
+            children.addFirst(w);
+        }
+        Iterator<AbstractWidget> it = children.iterator();
+        int i = 0;
+        while (it.hasNext()) {
+            AbstractWidget w = it.next();
+            w.y = y + (i * 12);
+            i++;
         }
         return super.mouseScrolled(d, e, f);
     }

@@ -1,7 +1,6 @@
 package xyz.wagyourtail.bindlayers.screen;
 
 import com.google.common.collect.Sets;
-import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
 import net.minecraft.client.KeyMapping;
@@ -223,7 +222,7 @@ public class GuidedConflictResolver extends Screen {
                 bindList.initWithComponent(new LinkedHashSet<>(newLayers.get(currentSelected).binds.entrySet()
                     .stream()
                     .map(bind ->
-                        Component.translatable(bind.getKey().getName())
+                        translatable(bind.getKey().getName())
                             .append("  -  ")
                             .append(bind.getValue().displayName()))
                     .collect(Collectors.toList())));
@@ -325,8 +324,7 @@ public class GuidedConflictResolver extends Screen {
                     if (newLayers.containsKey(renameBox.getValue())) {
                         return;
                     }
-                    newLayers.remove(currentSelected);
-                    conflicts.remove(currentSelected);
+                    conflicts.remove(newLayers.remove(currentSelected));
                     BindLayer renamed = new BindLayer(renameBox.getValue(), layer.getParentLayer());
                     renamed.copyFrom(layer);
                     newLayers.put(renameBox.getValue(), renamed);
@@ -404,7 +402,7 @@ public class GuidedConflictResolver extends Screen {
                         .filter(s -> !s.equals(BindLayers.INSTANCE.vanillaLayer.name) && !conflicts.computeIfAbsent(
                             newLayers.get(currentSelected),
                             c -> new HashSet<>()
-                        ).contains(s) && !s.equals(currentSelected))
+                        ).contains(newLayers.get(currentSelected)) && !s.equals(currentSelected))
                         .forEach(s -> nonConflictLayers.put(
                             literal(s), s));
                 }
@@ -473,9 +471,7 @@ public class GuidedConflictResolver extends Screen {
             100,
             20,
             translatable("gui.cancel"),
-            (button) -> {
-                onClose();
-            }
+            (button) -> onClose()
         ));
 
         // save

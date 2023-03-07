@@ -311,7 +311,11 @@ public class GuidedConflictResolver extends Screen {
         });
 
         // rename button
-        addRenderableWidget(new Button.Builder(
+        addRenderableWidget(new Button(
+            width / 2 + 55,
+            height / 2 + 25,
+            100,
+            12,
             translatable("bindlayers.gui.rename"),
             (button) -> {
                 if (currentSelected != null && !renameBox.getValue().isEmpty()) {
@@ -335,11 +339,7 @@ public class GuidedConflictResolver extends Screen {
                     layerList.setSelected(renamed.name);
                 }
             }
-        ).bounds(
-            width / 2 + 55,
-            height / 2 + 25,
-            100,
-            12).build());
+        ));
 
         Map<Component, String> allLayers = new LinkedHashMap<>();
         final String[] localCurrentParent = {null};
@@ -465,17 +465,21 @@ public class GuidedConflictResolver extends Screen {
 
 
         // cancel
-        cancel = addRenderableWidget(new Button.Builder(
-            translatable("gui.cancel"),
-            (button) -> onClose()
-        ).bounds(
+        cancel = addRenderableWidget(new Button(
             width / 2 - 100,
             height - 30,
             100,
-            20).build());
+            20,
+            translatable("gui.cancel"),
+            (button) -> onClose()
+        ));
 
         // save
-        save = addRenderableWidget(new Button.Builder(
+        save = addRenderableWidget(new Button(
+            width / 2,
+            height - 30,
+            100,
+            20,
             translatable("gui.done"),
             (button) -> {
                 INSTANCE.vanillaLayer.copyFrom(newLayers.get(INSTANCE.vanillaLayer.name));
@@ -493,11 +497,7 @@ public class GuidedConflictResolver extends Screen {
                 minecraft.options.save();
                 onClose();
             }
-        ).bounds(
-            width / 2,
-            height - 30,
-            100,
-            20).build());
+        ));
 
         updateSelected();
     }

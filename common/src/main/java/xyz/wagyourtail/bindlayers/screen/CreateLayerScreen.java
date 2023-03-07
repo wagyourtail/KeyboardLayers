@@ -73,7 +73,11 @@ public class CreateLayerScreen extends Screen {
         ));
 
 
-        addRenderableWidget(new Button.Builder(
+        addRenderableWidget(new Button(
+            width / 2 - 205,
+            height - 30,
+            200,
+            20,
             translatable("bindlayers.gui.create"),
             (button) -> {
                 if (!nameField.getValue().isEmpty()) {
@@ -82,24 +86,18 @@ public class CreateLayerScreen extends Screen {
                     onClose();
                 }
             }
-            ).bounds(
-                width / 2 - 205,
-                height - 30,
-                200,
-                20
-            ).build()
-        );
+        ));
 
-        addRenderableWidget(new Button.Builder(
+        addRenderableWidget(new Button(
+            width / 2 + 5,
+            height - 30,
+            200,
+            20,
             translatable("gui.cancel"),
             (button) -> {
                 onClose();
             }
-        ).bounds(
-            width / 2 + 5,
-            height - 30,
-            200,
-            20).build());
+        ));
     }
 
 }

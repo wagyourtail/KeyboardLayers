@@ -57,7 +57,7 @@ public class DropDownWidget extends AbstractWidget {
         int i = 0;
         while (it.hasNext()) {
             AbstractWidget w = it.next();
-            w.setY(getY() + (i * 12));
+            w.y = y + (i * 12);
             i++;
         }
         return super.mouseScrolled(d, e, f);
@@ -118,20 +118,20 @@ public class DropDownWidget extends AbstractWidget {
             int index = 0;
             if (addOption != null) {
                 index++;
-                children.add(new Button.Builder(
+                children.add(new Button(
+                    x,
+                    y,
+                    width,
+                    12,
                     translatable("bindlayers.gui.add_option"),
                     (btn) -> addOption.run()
-                ).bounds(
-                    getX(),
-                    getY(),
-                    width,
-                    12).build());
+                ));
             }
             for (Component option : options.get()) {
-                children.add(new Button.Builder(option, (button) -> {
+                children.add(new Button(x, y + index++ * 12, width, 12, option, (button) -> {
                     select.accept(option);
                     setFocused(false);
-                }).bounds(getX(), getY() + index++ * 12, width, 12).build());
+                }));
             }
             this.height = index * 12;
         } else {
@@ -154,8 +154,8 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    protected void updateWidgetNarration(NarrationElementOutput narrationElementOutput) {
-
+    public void updateNarration(@NotNull NarrationElementOutput narrationElementOutput) {
+        // TODO: idk
     }
 
 }

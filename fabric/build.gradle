@@ -40,6 +40,7 @@ dependencies {
     modImplementation "de.siphalor:amecs-1.19:${rootProject.amecs_version}", {
         exclude group: "com.github.astei"
         exclude group: "net.fabricmc.fabric-api"
+        exclude group: "de.siphalor", module: "nmuk-1.19"
     }
 
     common(project(path: ":common", configuration: "namedElements")) { transitive false }

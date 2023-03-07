@@ -37,7 +37,7 @@ public class MixinKeyEntry {
         layer.binds.remove(keyMapping);
     }
 
-    @Redirect(method = "render",
+    @Redirect(method = {"render", "method_25343", "m_6311_"},
         at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Ljava/lang/String;FFI)I"))
     private int bindlayers$onRenderName(Font instance, PoseStack poseStack, String text, float x, float y, int color) {

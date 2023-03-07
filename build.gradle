@@ -31,7 +31,10 @@ subprojects {
             parchment("org.parchmentmc.data:parchment-1.19.2:2022.08.28@zip")
         }
 
-        modImplementation "com.blamejared.controlling:Controlling-${project.name}-${rootProject.minecraft_version}:${rootProject.controlling_version}"
+        // so I can test amecs compat easier
+        if (project.name != "fabric") {
+            modImplementation "com.blamejared.controlling:Controlling-${project.name}-${rootProject.minecraft_version}:${rootProject.controlling_version}"
+        }
     }
 
     remapJar {

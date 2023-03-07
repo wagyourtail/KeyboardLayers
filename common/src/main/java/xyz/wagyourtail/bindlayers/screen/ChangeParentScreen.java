@@ -101,14 +101,14 @@ public class ChangeParentScreen extends Screen {
             null
         ));
 
-        addRenderableWidget(new Button(
+        addRenderableWidget(new Button.Builder(
+            translatable("gui.done"),
+            (b) -> onClose()
+        ).bounds(
             this.width / 2 - 50,
             this.height - 30,
             100,
-            20,
-            translatable("gui.done"),
-            (b) -> onClose()
-        ));
+            20).build());
 
         checkLoop();
     }

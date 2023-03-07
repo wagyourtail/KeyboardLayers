@@ -70,23 +70,19 @@ public class LayerManagementScreen extends Screen {
         layerList.init(BindLayers.INSTANCE.availableLayers());
 
         // back
-        back = addRenderableWidget(new Button(
-            width / 2 - 210,
-            height - 30,
-            80,
-            20,
+        back = addRenderableWidget(new Button.Builder(
             translatable("bindlayers.gui.back"),
             button -> {
                 onClose();
             }
-        ));
-
-        // delete
-        addRenderableWidget(new Button(
-            width / 2 - 125,
+        ).bounds(
+            width / 2 - 210,
             height - 30,
             80,
-            20,
+            20).build());
+
+        // delete
+        addRenderableWidget(new Button.Builder(
             translatable("bindlayers.gui.delete"),
             button -> {
                 assert layerList.getSelected() != null;
@@ -118,13 +114,13 @@ public class LayerManagementScreen extends Screen {
                     INSTANCE.removeLayer(layerList.getSelected().layerName);
                 }
             }
-        ));
-        // edit
-        addRenderableWidget(new Button(
-            width / 2 - 40,
+        ).bounds(
+            width / 2 - 125,
             height - 30,
             80,
-            20,
+            20).build());
+        // edit
+        addRenderableWidget(new Button.Builder(
             translatable("bindlayers.gui.edit"),
             button -> {
                 assert layerList.getSelected() != null;
@@ -132,34 +128,38 @@ public class LayerManagementScreen extends Screen {
                 assert minecraft != null;
                 minecraft.setScreen(new KeyBindsScreen(this, minecraft.options));
             }
-        ));
-        // rename
-        addRenderableWidget(new Button(
-            width / 2 + 45,
+        ).bounds(
+            width / 2 - 40,
             height - 30,
             80,
-            20,
+            20).build());
+        // rename
+        addRenderableWidget(new Button.Builder(
             translatable("bindlayers.gui.rename"),
             button -> {
                 assert minecraft != null;
                 assert layerList.getSelected() != null;
                 minecraft.setScreen(new RenameLayerScreen(this, layerList.getSelected().layerName));
             }
-        ));
-
-        // change parent
-        addRenderableWidget(new Button(
-            width / 2 + 130,
+        ).bounds(
+            width / 2 + 45,
             height - 30,
             80,
-            20,
+            20).build());
+
+        // change parent
+        addRenderableWidget(new Button.Builder(
             translatable("bindlayers.gui.change_parent"),
             button -> {
                 assert minecraft != null;
                 assert layerList.getSelected() != null;
                 minecraft.setScreen(new ChangeParentScreen(this, layerList.getSelected().layerName));
             }
-        ));
+        ).bounds(
+            width / 2 + 130,
+            height - 30,
+            80,
+            20).build());
 
         updateButtons();
     }

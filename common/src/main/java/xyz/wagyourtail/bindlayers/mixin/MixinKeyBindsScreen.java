@@ -62,18 +62,17 @@ public class MixinKeyBindsScreen extends OptionsSubScreen {
             }
         ));
 
-        addRenderableWidget(new Button.Builder(
+        addRenderableWidget(new Button(
+            90,
+            5,
+            100,
+            12,
             translatable("bindlayers.gui.layer_generator"),
             (button) -> {
                 assert minecraft != null;
                 minecraft.setScreen(new GuidedConflictResolver(this));
             }
-        ).bounds(
-            90,
-            5,
-            100,
-            12)
-        .build());
+        ));
     }
 
     @Inject(method = "mouseClicked", at = @At("HEAD"), cancellable = true)

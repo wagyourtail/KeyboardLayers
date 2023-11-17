@@ -1,6 +1,7 @@
 package xyz.wagyourtail.bindlayers.screen.elements;
 
 import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -14,7 +15,7 @@ import java.util.function.Supplier;
 
 import static net.minecraft.network.chat.Component.translatable;
 
-public class DropDownWidget extends AbstractWidget {
+public class DropDownWidget extends AbstractButton {
     final Supplier<Component> selected;
     final Supplier<Set<Component>> options;
     final Consumer<Component> select;
@@ -74,8 +75,13 @@ public class DropDownWidget extends AbstractWidget {
             }
             poseStack.popPose();
         } else {
-            renderButton(poseStack, i, j, f);
+            renderWidget(poseStack, i, j, f);
         }
+    }
+
+    @Override
+    public void onPress() {
+
     }
 
     @Override
@@ -111,8 +117,7 @@ public class DropDownWidget extends AbstractWidget {
         return super.mouseDragged(d, e, i, f, g);
     }
 
-    @Override
-    protected void onFocusedChanged(boolean bl) {
+    public void onFocusedChanged(boolean bl) {
         if (isFocused()) {
             children.clear();
             int index = 0;
@@ -146,7 +151,7 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    protected void setFocused(boolean bl) {
+    public void setFocused(boolean bl) {
         if (bl ^ isFocused()) {
             super.setFocused(bl);
             onFocusedChanged(bl);

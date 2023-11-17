@@ -30,7 +30,7 @@ public class MixinKeyEntry {
 
     @Shadow
     @Final
-    private KeyMapping keybinding;
+    private KeyMapping key;
 
 
     @Inject(method = {"lambda$new$1"}, at = @At(value = "RETURN"))
@@ -46,7 +46,7 @@ public class MixinKeyEntry {
         at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/gui/Font;draw(Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/network/chat/Component;FFI)I"))
     private int bindlayers$onRenderName(Font instance, PoseStack poseStack, Component text, float x, float y, int color) {
-        if (!BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer()).binds.containsKey(keybinding)) {
+        if (!BindLayers.INSTANCE.getOrCreate(BindLayers.INSTANCE.getActiveLayer()).binds.containsKey(key)) {
             return instance.draw(
                 poseStack,
                 text.copy().withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY),

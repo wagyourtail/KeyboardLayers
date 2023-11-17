@@ -25,7 +25,7 @@ import static net.minecraft.network.chat.Component.literal;
 import static net.minecraft.network.chat.Component.translatable;
 import static xyz.wagyourtail.bindlayers.BindLayers.INSTANCE;
 
-@Mixin({KeyBindsScreen.class, NewKeyBindsScreen.class})
+@Mixin(KeyBindsScreen.class)
 public class MixinKeyBindsScreen extends OptionsSubScreen {
 
     @Unique

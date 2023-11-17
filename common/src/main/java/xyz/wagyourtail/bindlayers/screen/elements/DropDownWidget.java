@@ -44,7 +44,7 @@ public class DropDownWidget extends AbstractWidget {
 
     @Override
     public boolean mouseScrolled(double d, double e, double f) {
-        if (f > 0 && hiddenChildren.size() > 0) {
+        if (f > 0 && !hiddenChildren.isEmpty()) {
             AbstractWidget w = children.removeFirst();
             children.addFirst(hiddenChildren.removeLast());
             children.addFirst(w);
@@ -141,7 +141,7 @@ public class DropDownWidget extends AbstractWidget {
     }
 
     @Override
-    public Component getMessage() {
+    public @NotNull Component getMessage() {
         return selected.get();
     }
 

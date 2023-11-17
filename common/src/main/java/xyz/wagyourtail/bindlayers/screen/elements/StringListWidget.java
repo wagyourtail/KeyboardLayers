@@ -66,7 +66,7 @@ public class StringListWidget extends ObjectSelectionList<StringListWidget.Strin
 
         @Override
         public Component getNarration() {
-            return null;
+            return Component.empty();
         }
 
     }

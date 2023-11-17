@@ -81,7 +81,7 @@ public class LayerListWidget extends ObjectSelectionList<LayerListWidget.LayerEn
 
         @Override
         public Component getNarration() {
-            return null;
+            return Component.empty();
         }
 
         @Override
